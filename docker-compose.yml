@@ -1,0 +1,62 @@
+services:
+  bff-client:
+    build:
+      context: ../bff-client
+    image: bff-client:latest
+#    container_name: bff-client
+    ports:
+      - "8080:8080"
+    networks:
+      - app
+    depends_on:
+      eureka-server:
+        condition: service_started
+    volumes:
+      - ../certs/bff:/certs/bff:ro
+    environment:
+      BFF_SERVER_KEYSTORE_PASSWORD: ${BFF_SERVER_KEYSTORE_PASSWORD}
+      BFF_CLIENT_KEYSTORE_PASSWORD: ${BFF_CLIENT_KEYSTORE_PASSWORD}
+      BFF_TRUSTSTORE_PASSWORD:      ${BFF_TRUSTSTORE_PASSWORD}
+      SPRING_PROFILES_ACTIVE:       ${SPRING_PROFILES_ACTIVE}
+
+
+  driver-service:
+    build:
+      context: ../driver-service
+    image: driver-service:latest
+#    container_name: driver-service
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - app
+#        aliases:
+#          - driver-service
+    volumes:
+      - ../certs/driver:/certs/driver:ro
+    environment:
+      DRIVER_SERVER_KEYSTORE_PASSWORD:  ${DRIVER_SERVER_KEYSTORE_PASSWORD}
+      DRIVER_TRUSTSTORE_PASSWORD:       ${DRIVER_TRUSTSTORE_PASSWORD}
+      DB_URL:                           ${DB_URL}
+      DB_USERNAME:                      ${DB_USERNAME}
+      DB_PASSWORD:                      ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE:           ${SPRING_PROFILES_ACTIVE}
+
+  redis-cache:
+    image: redis:latest
+#    container_name: redis-cache
+    networks:
+      - app
+
+  eureka-server:
+    build:
+      context: ../eureka-server
+    image: eureka-server:latest
+    ports:
+      - "8761:8761"
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
