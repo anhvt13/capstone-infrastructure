@@ -73,7 +73,7 @@ resource "aws_iam_role_policy_attachment" "capstone-ecs-execution-role-secret-ac
 # ECS task role
 #====================
 resource "aws_iam_role" "capstone-ecs-task-role" {
-  name               = "ecs-task-role"
+  name               = "capstone-ecs-task-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

@@ -111,7 +111,7 @@ module "container" {
   capstone_vpc_id             = module.network.capstone_vpc_id
   capstone_bff_tg_arn         = module.alb.capstone_bff_tg_arn
 
-  depends_on                  = [module.database, module.redis]
+  depends_on = [module.database, module.redis]
 }
 
 # =====================
