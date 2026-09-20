@@ -226,6 +226,9 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
     }
   }
   enable_execute_command = true
+
+  // Give the ECS service a startup grace period. ALB health failures don't force ECS to replace task
+  health_check_grace_period_seconds = 60
 }
 
 #===============================
@@ -339,6 +342,10 @@ resource "aws_ecs_service" "ecs-capstone-bff-client" {
     container_port   = 8080
   }
   enable_execute_command = true
+
+  // Give the ECS service a startup grace period. ALB health failures don't force ECS to replace task
+  health_check_grace_period_seconds = 60
+
 }
 
 #===============================
