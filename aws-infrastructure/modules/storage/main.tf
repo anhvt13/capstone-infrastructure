@@ -2,8 +2,8 @@
 # Database schema bucket
 # ================================
 resource "aws_s3_bucket" "capstone-db-schema-bucket" {
-  bucket            = var.capstone_db_schema_bucket_name
-  bucket_namespace  = "account-regional"
+  bucket           = var.capstone_db_schema_bucket_name
+  bucket_namespace = "account-regional"
 
   tags = merge(
     {
@@ -17,7 +17,7 @@ resource "aws_s3_bucket" "capstone-db-schema-bucket" {
 # BLocked public access
 # ================================
 resource "aws_s3_bucket_public_access_block" "capstone_storage" {
-  bucket = aws_s3_bucket.capstone-db-schema-bucket.id
+  bucket                  = aws_s3_bucket.capstone-db-schema-bucket.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "allow-access-from-bastion-host" {
   statement {
     effect = "Allow"
     principals {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         var.bastion-host-role-arn
       ]

@@ -23,8 +23,8 @@ resource "aws_ecs_cluster" "capstone-ecs-cluster" {
 # ECS Task Execution Role
 #========================
 resource "aws_iam_role" "capstone-ecs-task-execution-role" {
-  name                = "capstone-ecs-task-execution-role"
-  assume_role_policy  = jsonencode({
+  name = "capstone-ecs-task-execution-role"
+  assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -39,14 +39,14 @@ resource "aws_iam_role" "capstone-ecs-task-execution-role" {
 }
 
 resource "aws_iam_role_policy_attachment" "capstone-ecs-task-execution-role-attach-policy" {
-  role          = aws_iam_role.capstone-ecs-task-execution-role.name
-  policy_arn    = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  role       = aws_iam_role.capstone-ecs-task-execution-role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 data "aws_iam_policy_document" "ecs-iam-access-policy-doc" {
   statement {
-    sid     = "ListObjectsInBucket"
-    effect  = "Allow"
+    sid    = "ListObjectsInBucket"
+    effect = "Allow"
     actions = [
       "secretsmanager:GetSecretValue"
     ]
@@ -73,7 +73,7 @@ resource "aws_iam_role_policy_attachment" "capstone-ecs-execution-role-secret-ac
 # ECS task role
 #====================
 resource "aws_iam_role" "capstone-ecs-task-role" {
-  name               = "capstone-ecs-task-role"
+  name = "capstone-ecs-task-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -93,8 +93,8 @@ resource "aws_iam_role" "capstone-ecs-task-role" {
 #===================================================
 data "aws_iam_policy_document" "ecs-ssm-message-exec-policy-doc" {
   statement {
-    sid     = "ExecSSMMessage"
-    effect  = "Allow"
+    sid    = "ExecSSMMessage"
+    effect = "Allow"
     actions = [
       "ssmmessages:CreateControlChannel",
       "ssmmessages:CreateDataChannel",
@@ -120,18 +120,18 @@ resource "aws_iam_role_policy_attachment" "capstone-ecs-execution-ssm-message-ro
 # Driver-service task definition
 #==========================================
 resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
-  family                    = "driver-service-fargate-td"
-  requires_compatibilities  = ["FARGATE"]
-  network_mode              = "awsvpc"
-  cpu                       = "512"     # 0.5 vCPU
-  memory                    = "1024"    # 1 GiB
+  family                   = "driver-service-fargate-td"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "512"  # 0.5 vCPU
+  memory                   = "1024" # 1 GiB
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
   }
-  execution_role_arn        = aws_iam_role.capstone-ecs-task-execution-role.arn
-  task_role_arn             = aws_iam_role.capstone-ecs-task-role.arn
-  container_definitions     = jsonencode([
+  execution_role_arn = aws_iam_role.capstone-ecs-task-execution-role.arn
+  task_role_arn      = aws_iam_role.capstone-ecs-task-role.arn
+  container_definitions = jsonencode([
     {
       name      = "driver-service"
       image     = var.driver_service_ecr_uri
@@ -186,7 +186,7 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
       ]
       logConfiguration = {
         logDriver = "awslogs"
-        options   = {
+        options = {
           "awslogs-group"         = var.ecs_capstone_app_log_group
           "awslogs-region"        = var.primary_aws_region
           "awslogs-stream-prefix" = "ecs"
@@ -206,7 +206,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
   desired_count   = 1
   launch_type     = "FARGATE"
   network_configuration {
-    subnets         = var.capstone_private_subnet_ids
+    subnets = var.capstone_private_subnet_ids
     security_groups = [
       var.capstone_private_sg_id
     ]
@@ -215,13 +215,13 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
 
   # Service Connect provider enabled + service definition to be discoverable from other consumer services
   service_connect_configuration {
-    enabled          = true
+    enabled = true
     service {
       port_name      = "driver-service"
       discovery_name = "driver-service"
       client_alias {
-        dns_name     = "driver-service"
-        port         = 8082
+        dns_name = "driver-service"
+        port     = 8082
       }
     }
   }
@@ -235,18 +235,18 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
 # BFF-client task definition
 #===============================
 resource "aws_ecs_task_definition" "capstone-bff-client-fargate-td" {
-  family                    = "bff-client-fargate-td"
-  requires_compatibilities  = ["FARGATE"]
-  network_mode              = "awsvpc"
-  cpu                       = "512"     # 0.5 vCPU
-  memory                    = "1024"    # 1 GiB
+  family                   = "bff-client-fargate-td"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "512"  # 0.5 vCPU
+  memory                   = "1024" # 1 GiB
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
   }
-  execution_role_arn        = aws_iam_role.capstone-ecs-task-execution-role.arn
-  task_role_arn             = aws_iam_role.capstone-ecs-task-role.arn
-  container_definitions     = jsonencode([
+  execution_role_arn = aws_iam_role.capstone-ecs-task-execution-role.arn
+  task_role_arn      = aws_iam_role.capstone-ecs-task-role.arn
+  container_definitions = jsonencode([
     {
       name      = "bff-client"
       image     = var.bff_client_ecr_uri

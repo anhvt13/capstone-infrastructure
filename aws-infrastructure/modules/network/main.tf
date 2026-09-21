@@ -127,9 +127,9 @@ resource "aws_eip" "capstone-nat-eip" {
 }
 
 resource "aws_nat_gateway" "capstone-nat-gw" {
-  allocation_id     = aws_eip.capstone-nat-eip.id
-  subnet_id         = aws_subnet.capstone-public-subnet-1.id
-  depends_on        = [aws_internet_gateway.capstone-igw]
+  allocation_id = aws_eip.capstone-nat-eip.id
+  subnet_id     = aws_subnet.capstone-public-subnet-1.id
+  depends_on    = [aws_internet_gateway.capstone-igw]
 
   tags = merge(
     {
@@ -143,7 +143,7 @@ resource "aws_nat_gateway" "capstone-nat-gw" {
 # Route Table
 # ================================
 resource "aws_route_table" "capstone-public-rt" {
-  vpc_id       = aws_vpc.capstone-vpc.id
+  vpc_id = aws_vpc.capstone-vpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -159,7 +159,7 @@ resource "aws_route_table" "capstone-public-rt" {
 }
 
 resource "aws_route_table" "capstone-private-rt" {
-  vpc_id           = aws_vpc.capstone-vpc.id
+  vpc_id = aws_vpc.capstone-vpc.id
 
   route {
     cidr_block     = "0.0.0.0/0"
@@ -241,9 +241,9 @@ resource "aws_vpc_endpoint" "capstone-s3-gw-ep" {
 # ECR Endpoint
 # ================================
 resource "aws_vpc_endpoint" "ecr-ep" {
-  vpc_id              = aws_vpc.capstone-vpc.id
-  service_name        = "com.amazonaws.${var.aws_region}.ecr.api"
-  vpc_endpoint_type   = "Interface"
+  vpc_id            = aws_vpc.capstone-vpc.id
+  service_name      = "com.amazonaws.${var.aws_region}.ecr.api"
+  vpc_endpoint_type = "Interface"
   subnet_ids = [
     aws_subnet.capstone-private-subnet-1.id
   ]
@@ -264,9 +264,9 @@ resource "aws_vpc_endpoint" "ecr-ep" {
 # Docker Endpoint (Docker layer in ECR)
 # =======================================
 resource "aws_vpc_endpoint" "ecr-dkr-ep" {
-  vpc_id              = aws_vpc.capstone-vpc.id
-  service_name        = "com.amazonaws.${var.aws_region}.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
+  vpc_id            = aws_vpc.capstone-vpc.id
+  service_name      = "com.amazonaws.${var.aws_region}.ecr.dkr"
+  vpc_endpoint_type = "Interface"
   subnet_ids = [
     aws_subnet.capstone-private-subnet-1.id
   ]

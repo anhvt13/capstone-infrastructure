@@ -18,13 +18,13 @@ resource "aws_secretsmanager_secret" "driver-service-secret" {
 # Base64 secret value of driver service certs
 #============================================
 resource "aws_secretsmanager_secret_version" "driver-service-secret-string" {
-  secret_id     = aws_secretsmanager_secret.driver-service-secret.id
+  secret_id = aws_secretsmanager_secret.driver-service-secret.id
   secret_string = jsonencode({
-    driver_keystore_base64     = filebase64(
+    driver_keystore_base64 = filebase64(
       "${path.module}/../../../../certs/driver/driver-service-keystore.p12"
     )
-    driver_keystore_password   = var.driver_keystore_password
-    driver_truststore_base64   = filebase64(
+    driver_keystore_password = var.driver_keystore_password
+    driver_truststore_base64 = filebase64(
       "${path.module}/../../../../certs/driver/driver-service-truststore.p12"
     )
     driver_truststore_password = var.driver_truststore_password
@@ -51,21 +51,21 @@ resource "aws_secretsmanager_secret" "bff-secret" {
 # Base64 secret value of bff certs
 #========================================
 resource "aws_secretsmanager_secret_version" "bff-secret-string" {
-  secret_id         = aws_secretsmanager_secret.bff-secret.id
-  secret_string     = jsonencode({
-    bff_client_keystore_base64    = filebase64(
+  secret_id = aws_secretsmanager_secret.bff-secret.id
+  secret_string = jsonencode({
+    bff_client_keystore_base64 = filebase64(
       "${path.module}/../../../../certs/bff/bff-client-keystore.p12"
     )
-    bff_server_keystore_base64    = filebase64(
+    bff_server_keystore_base64 = filebase64(
       "${path.module}/../../../../certs/bff/bff-server-keystore.p12"
     )
-    bff_client_keystore_password  = var.bff_client_keystore_password
-    bff_server_keystore_password  = var.bff_server_keystore_password
-    bff_truststore_base64         = filebase64(
+    bff_client_keystore_password = var.bff_client_keystore_password
+    bff_server_keystore_password = var.bff_server_keystore_password
+    bff_truststore_base64 = filebase64(
       "${path.module}/../../../../certs/bff/bff-truststore.p12"
     )
-    bff_truststore_password       = var.bff_truststore_password
-    driver_m2m_client_id          = var.driver_m2m_client_id
-    driver_m2m_client_secret      = var.driver_m2m_client_secret
+    bff_truststore_password  = var.bff_truststore_password
+    driver_m2m_client_id     = var.driver_m2m_client_id
+    driver_m2m_client_secret = var.driver_m2m_client_secret
   })
 }
