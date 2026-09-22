@@ -9,7 +9,7 @@ permissions:
 
 env:
   AWS_REGION: ap-southeast-1
-  TF_WORKING_DIR: aws-infras
+  TF_WORKING_DIR: aws-infrastructure
 
 # Infrastructure Destroy Job
 jobs:
