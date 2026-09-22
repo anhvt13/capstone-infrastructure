@@ -203,7 +203,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
   name            = "driver-service"
   cluster         = aws_ecs_cluster.capstone-ecs-cluster.id
   task_definition = aws_ecs_task_definition.capstone-driver-service-fargate-td.arn
-  desired_count   = 1
+  desired_count   = 0
   launch_type     = "FARGATE"
   network_configuration {
     subnets = var.capstone_private_subnet_ids
@@ -294,11 +294,11 @@ resource "aws_ecs_task_definition" "capstone-bff-client-fargate-td" {
         },
         {
           name      = "DRIVER_M2M_CLIENT_ID"
-          valueFrom = "${var.bff_secret_arn}:driver_m2m_client_id::"
+          valueFrom = "${var.bff_oauth2_secret_arn}:driver_m2m_client_id::"
         },
         {
           name      = "DRIVER_M2M_CLIENT_SECRET"
-          valueFrom = "${var.bff_secret_arn}:driver_m2m_client_secret::"
+          valueFrom = "${var.bff_oauth2_secret_arn}:driver_m2m_client_secret::"
         }
       ]
       logConfiguration = {
@@ -320,7 +320,7 @@ resource "aws_ecs_service" "ecs-capstone-bff-client" {
   name            = "bff-client"
   cluster         = aws_ecs_cluster.capstone-ecs-cluster.id
   task_definition = aws_ecs_task_definition.capstone-bff-client-fargate-td.arn
-  desired_count   = 1
+  desired_count   = 0
   launch_type     = "FARGATE"
   network_configuration {
     subnets = var.capstone_private_subnet_ids

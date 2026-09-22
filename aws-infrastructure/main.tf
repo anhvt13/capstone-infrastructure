@@ -79,7 +79,7 @@ module "storage" {
 module "secret" {
   source = "./modules/secret"
 
-  secret_tags                  = var.secret_tags
+  secret_tags = var.secret_tags
 }
 
 # =====================
@@ -103,6 +103,7 @@ module "container" {
   driver_service_secret_arn   = module.secret.driver_service_secret_arn
   capstone_vpc_id             = module.network.capstone_vpc_id
   capstone_bff_tg_arn         = module.alb.capstone_bff_tg_arn
+  bff_oauth2_secret_arn       = module.secret.bff_oauth2_secret_arn
 
   depends_on = [module.database, module.redis]
 }
