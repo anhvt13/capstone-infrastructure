@@ -80,13 +80,6 @@ module "secret" {
   source = "./modules/secret"
 
   secret_tags                  = var.secret_tags
-  driver_keystore_password     = var.driver_keystore_password
-  driver_truststore_password   = var.driver_truststore_password
-  bff_client_keystore_password = var.bff_client_keystore_password
-  bff_server_keystore_password = var.bff_server_keystore_password
-  bff_truststore_password      = var.bff_truststore_password
-  driver_m2m_client_id         = var.driver_m2m_client_id
-  driver_m2m_client_secret     = var.driver_m2m_client_secret
 }
 
 # =====================
