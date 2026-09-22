@@ -31,13 +31,13 @@ resource "aws_lb_target_group" "capstone-bff-tg" {
 # Application Load Balancer
 # ===============================
 resource "aws_lb" "capstone-alb" {
-  name                = "capstone-alb"
-  internal            = false
-  load_balancer_type  = "application"
-  security_groups     = [
+  name               = "capstone-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups = [
     var.capstone_alb_security_group_id
   ]
-  subnets             = var.capstone_public_subnet_ids
+  subnets = var.capstone_public_subnet_ids
 
   tags = merge(
     {
@@ -49,8 +49,8 @@ resource "aws_lb" "capstone-alb" {
 
 resource "aws_lb_listener" "bff_http" {
   load_balancer_arn = aws_lb.capstone-alb.arn
-  port     = 80
-  protocol = "HTTP"
+  port              = 80
+  protocol          = "HTTP"
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.capstone-bff-tg.arn

@@ -58,6 +58,11 @@ variable "bff_secret_arn" {
   type        = string
 }
 
+variable "bff_oauth2_secret_arn" {
+  description = "ARN of bff OAuth2 secret manager"
+  type        = string
+}
+
 variable "rds_secret_arn" {
   description = "ARN of rds secret manager"
   type        = string

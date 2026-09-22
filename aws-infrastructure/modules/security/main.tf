@@ -39,57 +39,57 @@ resource "aws_network_acl" "capstone-db-nacl" {
 # NACL rule
 # ===============================
 resource "aws_network_acl_rule" "public-nacl-inbound-rule" {
-  network_acl_id  = aws_network_acl.capstone-public-nacl.id
-  rule_number     = 100
-  egress          = false
-  protocol        = "all"
-  rule_action     = "allow"
-  cidr_block      = "0.0.0.0/0"
+  network_acl_id = aws_network_acl.capstone-public-nacl.id
+  rule_number    = 100
+  egress         = false
+  protocol       = "all"
+  rule_action    = "allow"
+  cidr_block     = "0.0.0.0/0"
 }
 
 resource "aws_network_acl_rule" "public-nacl-outbound-rule" {
-  network_acl_id  = aws_network_acl.capstone-public-nacl.id
-  rule_number     = 100
-  egress          = true
-  protocol        = "all"
-  rule_action     = "allow"
-  cidr_block      = "0.0.0.0/0"
+  network_acl_id = aws_network_acl.capstone-public-nacl.id
+  rule_number    = 100
+  egress         = true
+  protocol       = "all"
+  rule_action    = "allow"
+  cidr_block     = "0.0.0.0/0"
 }
 
 resource "aws_network_acl_rule" "private-nacl-inbound-rule" {
-  network_acl_id  = aws_network_acl.capstone-private-nacl.id
-  rule_number     = 100
-  egress          = false
-  protocol        = "all"
-  rule_action     = "allow"
-  cidr_block      = "0.0.0.0/0"
+  network_acl_id = aws_network_acl.capstone-private-nacl.id
+  rule_number    = 100
+  egress         = false
+  protocol       = "all"
+  rule_action    = "allow"
+  cidr_block     = "0.0.0.0/0"
 }
 
 resource "aws_network_acl_rule" "private-nacl-outbound-rule" {
-  network_acl_id  = aws_network_acl.capstone-private-nacl.id
-  rule_number     = 100
-  egress          = true
-  protocol        = "all"
-  rule_action     = "allow"
-  cidr_block      = "0.0.0.0/0"
+  network_acl_id = aws_network_acl.capstone-private-nacl.id
+  rule_number    = 100
+  egress         = true
+  protocol       = "all"
+  rule_action    = "allow"
+  cidr_block     = "0.0.0.0/0"
 }
 
 resource "aws_network_acl_rule" "db-nacl-inbound-rule" {
-  network_acl_id  = aws_network_acl.capstone-db-nacl.id
-  rule_number     = 100
-  egress          = false
-  protocol        = "all"
-  rule_action     = "allow"
-  cidr_block      = var.capstone_vpc_cidr_block
+  network_acl_id = aws_network_acl.capstone-db-nacl.id
+  rule_number    = 100
+  egress         = false
+  protocol       = "all"
+  rule_action    = "allow"
+  cidr_block     = var.capstone_vpc_cidr_block
 }
 
 resource "aws_network_acl_rule" "db-nacl-outbound-rule" {
-  network_acl_id  = aws_network_acl.capstone-db-nacl.id
-  rule_number     = 100
-  egress          = true
-  protocol        = "all"
-  rule_action     = "allow"
-  cidr_block      = var.capstone_vpc_cidr_block
+  network_acl_id = aws_network_acl.capstone-db-nacl.id
+  rule_number    = 100
+  egress         = true
+  protocol       = "all"
+  rule_action    = "allow"
+  cidr_block     = var.capstone_vpc_cidr_block
 }
 
 # ===============================
@@ -184,87 +184,87 @@ resource "aws_security_group" "capstone-alb-sg" {
 # Security Group Rule
 # ============================
 resource "aws_vpc_security_group_ingress_rule" "public-sg-inbound-rule" {
-  security_group_id   = aws_security_group.capstone-public-sg.id
-  cidr_ipv4           = "0.0.0.0/0"
-  ip_protocol         = "-1"
+  security_group_id = aws_security_group.capstone-public-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }
 
 resource "aws_vpc_security_group_egress_rule" "public-sg-outbound-rule" {
-  security_group_id   = aws_security_group.capstone-public-sg.id
-  cidr_ipv4           = "0.0.0.0/0"
-  ip_protocol         = "-1"
+  security_group_id = aws_security_group.capstone-public-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "private-sg-inbound-rule" {
-  security_group_id             = aws_security_group.capstone-private-sg.id
-  referenced_security_group_id  = aws_security_group.capstone-public-sg.id
-  ip_protocol                   = "-1"
+  security_group_id            = aws_security_group.capstone-private-sg.id
+  referenced_security_group_id = aws_security_group.capstone-public-sg.id
+  ip_protocol                  = "-1"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "private-sg-inbound-rule-for-bastion-host" {
-  security_group_id             = aws_security_group.capstone-private-sg.id
-  referenced_security_group_id  = var.bastion_host_security_group_id
-  ip_protocol                   = "-1"
+  security_group_id            = aws_security_group.capstone-private-sg.id
+  referenced_security_group_id = var.bastion_host_security_group_id
+  ip_protocol                  = "-1"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "private-sg-inbound-rule-for-alb-sg" {
-  security_group_id               = aws_security_group.capstone-private-sg.id
-  referenced_security_group_id    = aws_security_group.capstone-alb-sg.id
-  ip_protocol                     = "tcp"
-  from_port                       = 8080
-  to_port                         = 8080
+  security_group_id            = aws_security_group.capstone-private-sg.id
+  referenced_security_group_id = aws_security_group.capstone-alb-sg.id
+  ip_protocol                  = "tcp"
+  from_port                    = 8080
+  to_port                      = 8080
 }
 
 resource "aws_vpc_security_group_ingress_rule" "private-sg-inbound-rule-self-reference" {
-  description                     = "Allow belong services can communicate to each others"
-  security_group_id               = aws_security_group.capstone-private-sg.id
-  referenced_security_group_id    = aws_security_group.capstone-private-sg.id
-  ip_protocol                     = "tcp"
-  from_port                       = 8082
-  to_port                         = 8082
+  description                  = "Allow belong services can communicate to each others"
+  security_group_id            = aws_security_group.capstone-private-sg.id
+  referenced_security_group_id = aws_security_group.capstone-private-sg.id
+  ip_protocol                  = "tcp"
+  from_port                    = 8082
+  to_port                      = 8082
 }
 
 resource "aws_vpc_security_group_egress_rule" "private-sg-outbound-rule" {
-  security_group_id               = aws_security_group.capstone-private-sg.id
-  cidr_ipv4                       = "0.0.0.0/0"
-  ip_protocol                     = "-1"
+  security_group_id = aws_security_group.capstone-private-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "db-sg-inbound-rule" {
-  security_group_id               = aws_security_group.capstone-db-sg.id
-  referenced_security_group_id    = aws_security_group.capstone-private-sg.id
-  from_port                       = 5432
-  to_port                         = 5432
-  ip_protocol                     = "tcp"
+  security_group_id            = aws_security_group.capstone-db-sg.id
+  referenced_security_group_id = aws_security_group.capstone-private-sg.id
+  from_port                    = 5432
+  to_port                      = 5432
+  ip_protocol                  = "tcp"
 }
 
 resource "aws_vpc_security_group_egress_rule" "db-sg-outbound-rule" {
-  security_group_id               = aws_security_group.capstone-db-sg.id
-  cidr_ipv4                       = var.capstone_vpc_cidr_block
-  ip_protocol                     = "-1"
+  security_group_id = aws_security_group.capstone-db-sg.id
+  cidr_ipv4         = var.capstone_vpc_cidr_block
+  ip_protocol       = "-1"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "alb-sg-inbound-rule" {
-  security_group_id               = aws_security_group.capstone-alb-sg.id
-  from_port                       = 80
-  to_port                         = 80
-  ip_protocol                     = "tcp"
-  cidr_ipv4                       = "0.0.0.0/0"
+  security_group_id = aws_security_group.capstone-alb-sg.id
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_vpc_security_group_egress_rule" "alb-sg-outbound-rule" {
-  security_group_id               = aws_security_group.capstone-alb-sg.id
-  cidr_ipv4                       = "0.0.0.0/0"
-  ip_protocol                     = "-1"
+  security_group_id = aws_security_group.capstone-alb-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }
 
 # ==================================
 # VPC interface endpoint security group
 # ==================================
 resource "aws_security_group" "capstone-vpc-endpoint-sg" {
-  name                            = "capstone-vpc-endpoint-sg"
-  description                     = "VPC interface endpoint security group"
-  vpc_id                          = var.capstone_vpc_id
+  name        = "capstone-vpc-endpoint-sg"
+  description = "VPC interface endpoint security group"
+  vpc_id      = var.capstone_vpc_id
 
   tags = merge(
     {
@@ -275,19 +275,19 @@ resource "aws_security_group" "capstone-vpc-endpoint-sg" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-rule" {
-  security_group_id               = aws_security_group.capstone-vpc-endpoint-sg.id
-  referenced_security_group_id    = aws_security_group.capstone-private-sg.id
-  ip_protocol                     = "-1"
+  security_group_id            = aws_security_group.capstone-vpc-endpoint-sg.id
+  referenced_security_group_id = aws_security_group.capstone-private-sg.id
+  ip_protocol                  = "-1"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-bastion-sg-rule" {
-  security_group_id               = aws_security_group.capstone-vpc-endpoint-sg.id
-  referenced_security_group_id    = var.bastion_host_security_group_id
-  ip_protocol                     = "-1"
+  security_group_id            = aws_security_group.capstone-vpc-endpoint-sg.id
+  referenced_security_group_id = var.bastion_host_security_group_id
+  ip_protocol                  = "-1"
 }
 
 resource "aws_vpc_security_group_egress_rule" "vpc-endpoint-sg-outbound-rule" {
-  security_group_id               = aws_security_group.capstone-vpc-endpoint-sg.id
-  cidr_ipv4                       = "0.0.0.0/0"
-  ip_protocol                     = "-1"
+  security_group_id = aws_security_group.capstone-vpc-endpoint-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }

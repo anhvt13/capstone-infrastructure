@@ -1,6 +1,6 @@
 variable "database_tags" {
   description = "Common tags applied to all database resources"
-  type = map(string)
+  type        = map(string)
 }
 
 variable "capstone_db_subnet_ids" {

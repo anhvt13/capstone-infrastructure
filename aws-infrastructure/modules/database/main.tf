@@ -3,8 +3,8 @@
 # DB subnet groups
 # =====================
 resource "aws_db_subnet_group" "aurora" {
-  name        = "capstone-aurora-subnet-group"
-  subnet_ids  = var.capstone_db_subnet_ids
+  name       = "capstone-aurora-subnet-group"
+  subnet_ids = var.capstone_db_subnet_ids
 
   tags = merge(
     {

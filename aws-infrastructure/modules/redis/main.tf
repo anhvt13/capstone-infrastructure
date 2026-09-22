@@ -12,20 +12,20 @@ resource "aws_security_group" "capstone-valkey-sg" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "capstone-valkey-inbound-from-private-sg" {
-  security_group_id             = aws_security_group.capstone-valkey-sg.id
-  referenced_security_group_id  = var.capstone_private_security_group_id
-  ip_protocol                   = "tcp"
-  from_port                     = 6379
-  to_port                       = 6379
+  security_group_id            = aws_security_group.capstone-valkey-sg.id
+  referenced_security_group_id = var.capstone_private_security_group_id
+  ip_protocol                  = "tcp"
+  from_port                    = 6379
+  to_port                      = 6379
 }
 
 resource "aws_elasticache_serverless_cache" "capstone-valkey-cache" {
-  name                  = "capstone-valkey-cache"
-  engine                = "valkey"
-  major_engine_version  = "7"
-  description           = "Capstone serverless Valkey cache"
-  subnet_ids            = var.capstone_private_subnet_ids
-  security_group_ids    = [
+  name                 = "capstone-valkey-cache"
+  engine               = "valkey"
+  major_engine_version = "7"
+  description          = "Capstone serverless Valkey cache"
+  subnet_ids           = var.capstone_private_subnet_ids
+  security_group_ids = [
     aws_security_group.capstone-valkey-sg.id
   ]
   cache_usage_limits {
@@ -42,7 +42,7 @@ resource "aws_elasticache_serverless_cache" "capstone-valkey-cache" {
 
   tags = merge(
     {
-      Name  = "capstone-valkey-cache"
+      Name = "capstone-valkey-cache"
     },
     var.redis_tags
   )

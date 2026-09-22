@@ -2,16 +2,16 @@
 # IAM bastion-ssm role set up
 # ==========================
 resource "aws_iam_role" "capstone-bastion-ssm-role" {
-  name                = "capstone-bastion-ssm-instant-role"
-  assume_role_policy  = jsonencode({
-    Version           = "2012-10-17"
-    Statement     = [
+  name = "capstone-bastion-ssm-instant-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
       {
-        Effect    = "Allow"
+        Effect = "Allow"
         Principal = {
           Service = "ec2.amazonaws.com"
         }
-        Action    = "sts:AssumeRole"
+        Action = "sts:AssumeRole"
       }
     ]
   })
@@ -34,9 +34,9 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 # ===========================================
 data "aws_iam_policy_document" "bastion-iam-secret-value-access-policy-doc" {
   statement {
-    sid       = "AccessSecretValue"
-    effect    = "Allow"
-    actions   = [
+    sid    = "AccessSecretValue"
+    effect = "Allow"
+    actions = [
       "secretsmanager:GetSecretValue"
     ]
     resources = [
@@ -61,9 +61,9 @@ resource "aws_iam_role_policy_attachment" "bastion-iam-secret-value-access-polic
 # ===========================================
 data "aws_iam_policy_document" "bastion-iam-describe-task-policy-doc" {
   statement {
-    sid       = "ecsDescribeTasks"
-    effect    = "Allow"
-    actions   = [
+    sid    = "ecsDescribeTasks"
+    effect = "Allow"
+    actions = [
       "ecs:DescribeTasks"
     ]
     resources = ["*"]
@@ -77,8 +77,8 @@ resource "aws_iam_policy" "bastion-identity-describe-task-policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "bastion-iam-describe-task-policy-attach" {
-  role        = aws_iam_role.capstone-bastion-ssm-role.name
-  policy_arn  = aws_iam_policy.bastion-identity-describe-task-policy.arn
+  role       = aws_iam_role.capstone-bastion-ssm-role.name
+  policy_arn = aws_iam_policy.bastion-identity-describe-task-policy.arn
 }
 
 # =========================
@@ -122,11 +122,11 @@ resource "aws_vpc_security_group_egress_rule" "bastion-sg-outbound-rule" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "db-sg-inbound-rule" {
-  security_group_id             = var.capstone-db-sg-id
-  referenced_security_group_id  = aws_security_group.capstone-bastion-sg.id
-  from_port                     = 5432
-  to_port                       = 5432
-  ip_protocol                   = "tcp"
+  security_group_id            = var.capstone-db-sg-id
+  referenced_security_group_id = aws_security_group.capstone-bastion-sg.id
+  from_port                    = 5432
+  to_port                      = 5432
+  ip_protocol                  = "tcp"
 }
 
 # =========================
@@ -145,7 +145,7 @@ resource "aws_instance" "bastion-host" {
                               dnf install -y postgresql17
                               EOF
 
-  depends_on                  = [
+  depends_on = [
     aws_iam_role_policy_attachment.ssm,
     aws_iam_role_policy_attachment.bastion-iam-read-schema-bucket-policy-attach
   ]
@@ -163,9 +163,9 @@ resource "aws_instance" "bastion-host" {
 # =============================================
 data "aws_iam_policy_document" "bastion-iam-schema-bucket-access-policy-doc" {
   statement {
-    sid       = "ListObjectsInBucket"
-    effect    = "Allow"
-    actions   = [
+    sid    = "ListObjectsInBucket"
+    effect = "Allow"
+    actions = [
       "s3:ListBucket"
     ]
     resources = [
@@ -173,9 +173,9 @@ data "aws_iam_policy_document" "bastion-iam-schema-bucket-access-policy-doc" {
     ]
   }
   statement {
-    sid       = "ReadObjects"
-    effect    = "Allow"
-    actions   = [
+    sid    = "ReadObjects"
+    effect = "Allow"
+    actions = [
       "s3:GetObject"
     ]
     resources = [

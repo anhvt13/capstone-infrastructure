@@ -79,14 +79,7 @@ module "storage" {
 module "secret" {
   source = "./modules/secret"
 
-  secret_tags                  = var.secret_tags
-  driver_keystore_password     = var.driver_keystore_password
-  driver_truststore_password   = var.driver_truststore_password
-  bff_client_keystore_password = var.bff_client_keystore_password
-  bff_server_keystore_password = var.bff_server_keystore_password
-  bff_truststore_password      = var.bff_truststore_password
-  driver_m2m_client_id         = var.driver_m2m_client_id
-  driver_m2m_client_secret     = var.driver_m2m_client_secret
+  secret_tags = var.secret_tags
 }
 
 # =====================
@@ -110,6 +103,7 @@ module "container" {
   driver_service_secret_arn   = module.secret.driver_service_secret_arn
   capstone_vpc_id             = module.network.capstone_vpc_id
   capstone_bff_tg_arn         = module.alb.capstone_bff_tg_arn
+  bff_oauth2_secret_arn       = module.secret.bff_oauth2_secret_arn
 
   depends_on = [module.database, module.redis]
 }
