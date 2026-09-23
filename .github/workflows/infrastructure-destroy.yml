@@ -2,6 +2,8 @@ name: Capstone Infrastructure Cleanup Workflow
 
 on:
   workflow_dispatch:
+    branches:
+      - main
 
 permissions:
   id-token: write
