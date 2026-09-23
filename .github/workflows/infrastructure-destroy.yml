@@ -1,4 +1,4 @@
-name: Capstone Infrastructure Destroy Workflow
+name: Capstone Infrastructure Cleanup Workflow
 
 on:
   workflow_dispatch:
