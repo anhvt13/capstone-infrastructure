@@ -1,4 +1,4 @@
-name: Capstone Infrastructure Deployment Workflow
+name: Capstone Infrastructure Deployment
 
 on:
   pull_request:
