@@ -1,4 +1,4 @@
-name: Capstone Infrastructure Cleanup Workflow
+name: Capstone Infrastructure Cleanup
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ permissions:
 
 env:
   AWS_REGION: ap-southeast-1
-  TF_WORKING_DIR: aws-infrastructure
+  TF_WORKING_DIR: modules/infras-role
 
 # Infrastructure Destroy Job
 jobs:
