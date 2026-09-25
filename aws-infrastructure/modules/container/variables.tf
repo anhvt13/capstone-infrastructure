@@ -77,3 +77,8 @@ variable "capstone_bff_tg_arn" {
   description = "ARN of capstone bff target group"
   type        = string
 }
+
+variable "ecs_desired_task" {
+  description = "Number of ecs task desired to run"
+  type        = number
+}
