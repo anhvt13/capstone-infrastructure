@@ -185,7 +185,7 @@ variable "database_name" {
 }
 
 variable "ecs_desired_task" {
-  description = "Number of ecs desired task to run"
+  description = "Number of ECS desired task to run"
   type        = number
   default     = 0
 }
