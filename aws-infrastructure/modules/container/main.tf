@@ -53,7 +53,8 @@ data "aws_iam_policy_document" "ecs-iam-access-policy-doc" {
     resources = [
       var.driver_service_secret_arn,
       var.rds_secret_arn,
-      var.bff_secret_arn
+      var.bff_secret_arn,
+      var.bff_oauth2_secret_arn
     ]
   }
 }
