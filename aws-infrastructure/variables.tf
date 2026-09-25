@@ -183,3 +183,9 @@ variable "database_name" {
   type        = string
   default     = "capstone"
 }
+
+variable "ecs_desired_task" {
+  description = "Number of ecs desired task to run"
+  type        = number
+  default     = 0
+}

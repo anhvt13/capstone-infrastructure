@@ -204,7 +204,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
   name            = "driver-service"
   cluster         = aws_ecs_cluster.capstone-ecs-cluster.id
   task_definition = aws_ecs_task_definition.capstone-driver-service-fargate-td.arn
-  desired_count   = 0
+  desired_count   = var.ecs_desired_task
   launch_type     = "FARGATE"
   network_configuration {
     subnets = var.capstone_private_subnet_ids
@@ -321,7 +321,7 @@ resource "aws_ecs_service" "ecs-capstone-bff-client" {
   name            = "bff-client"
   cluster         = aws_ecs_cluster.capstone-ecs-cluster.id
   task_definition = aws_ecs_task_definition.capstone-bff-client-fargate-td.arn
-  desired_count   = 0
+  desired_count   = var.ecs_desired_task
   launch_type     = "FARGATE"
   network_configuration {
     subnets = var.capstone_private_subnet_ids

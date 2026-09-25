@@ -104,6 +104,7 @@ module "container" {
   capstone_vpc_id             = module.network.capstone_vpc_id
   capstone_bff_tg_arn         = module.alb.capstone_bff_tg_arn
   bff_oauth2_secret_arn       = module.secret.bff_oauth2_secret_arn
+  ecs_desired_task            = var.ecs_desired_task
 
   depends_on = [module.database, module.redis]
 }
