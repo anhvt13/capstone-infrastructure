@@ -1,7 +1,7 @@
 services:
   bff-client:
     build:
-      context: ../bff-client
+      context: ../capstone-bff-client
     image: bff-client:latest
 #    container_name: bff-client
     ports:
@@ -17,12 +17,15 @@ services:
       BFF_SERVER_KEYSTORE_PASSWORD: ${BFF_SERVER_KEYSTORE_PASSWORD}
       BFF_CLIENT_KEYSTORE_PASSWORD: ${BFF_CLIENT_KEYSTORE_PASSWORD}
       BFF_TRUSTSTORE_PASSWORD:      ${BFF_TRUSTSTORE_PASSWORD}
+      DRIVER_M2M_CLIENT_ID:         ${DRIVER_M2M_CLIENT_ID}
+      DRIVER_M2M_CLIENT_SECRET:     ${DRIVER_M2M_CLIENT_SECRET}
       SPRING_PROFILES_ACTIVE:       ${SPRING_PROFILES_ACTIVE}
+#      JAVA_TOOL_OPTIONS:            "-Djavax.net.debug=ssl,handshake,trustmanager"
 
 
   driver-service:
     build:
-      context: ../driver-service
+      context: ../capstone-driver-service
     image: driver-service:latest
 #    container_name: driver-service
     depends_on:
