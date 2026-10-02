@@ -21,3 +21,6 @@ aws-infrastructure/.terraform/
 *.iml
 .vscode/
 
+# Function scripts
+*.zip
+
