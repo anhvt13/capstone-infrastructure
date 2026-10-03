@@ -78,7 +78,7 @@ jobs:
     name: Terraform Apply
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'workflow_dispatch' && inputs.ecs_desired_task == 1)
+      (github.event_name == 'workflow_dispatch')
     needs: terraform-plan
     runs-on: ubuntu-latest
     environment:
