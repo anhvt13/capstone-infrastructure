@@ -34,6 +34,12 @@ jobs:
       - name: Verify AWS identity
         run: aws sts get-caller-identity
 
+      - name: Package Lambda Function
+        working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
+        run: |
+          rm -f driver-blue-green-hook-function.zip
+          zip -j driver-blue-green-hook-function.zip index.mjs
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
 
