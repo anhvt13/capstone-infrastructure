@@ -189,3 +189,9 @@ variable "ecs_desired_task" {
   type        = number
   default     = 0
 }
+
+variable "driver_health_path" {
+  description = "Driver service health check path"
+  type        = string
+  default     = "/driver/health"
+}

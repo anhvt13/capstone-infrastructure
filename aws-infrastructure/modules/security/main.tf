@@ -219,9 +219,7 @@ resource "aws_vpc_security_group_ingress_rule" "private-sg-inbound-rule-self-ref
   description                  = "Allow belong services can communicate to each others"
   security_group_id            = aws_security_group.capstone-private-sg.id
   referenced_security_group_id = aws_security_group.capstone-private-sg.id
-  ip_protocol                  = "tcp"
-  from_port                    = 8082
-  to_port                      = 8082
+  ip_protocol                  = "-1"
 }
 
 resource "aws_vpc_security_group_egress_rule" "private-sg-outbound-rule" {

@@ -82,3 +82,23 @@ variable "ecs_desired_task" {
   description = "Number of ecs task desired to run"
   type        = number
 }
+
+variable "driver_blue_green_hook_function_arn" {
+  description = "The ARN of the Driver blue green hook lambda function"
+  type        = string
+}
+
+variable "driver_blue_green_hook_ecs_assume_role_arn" {
+  description = "The ARN of the Driver blue green hook ecs assume role"
+  type        = string
+}
+
+variable "driver_health_url" {
+  description = "URL of Driver service health check"
+  type        = string
+}
+
+variable "driver_health_path" {
+  description = "Driver service health check path"
+  type        = string
+}

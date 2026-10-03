@@ -82,31 +82,43 @@ module "secret" {
   secret_tags = var.secret_tags
 }
 
+# ======================================
+# Driver blue green hook function module
+# =====================================
+module "driver_blue_green_hook" {
+  source = "./modules/function/driver-blue-green-hook-function"
+
+}
+
 # =====================
 # Container module
 # =====================
 module "container" {
   source = "./modules/container"
 
-  container_tags              = var.container_tags
-  driver_service_ecr_uri      = var.driver_service_ecr_uri
-  bff_client_ecr_uri          = var.bff_client_ecr_uri
-  capstone_private_sg_id      = module.security.capstone_private_security_group_id
-  capstone_private_subnet_ids = module.network.capstone_private_subnet_ids
-  ecs_capstone_app_log_group  = module.monitor.ecs_capstone_app_log_group
-  primary_aws_region          = var.primary_aws_region
-  capstone_aurora_cluster_ep  = module.database.capstone_aurora_cluster_ep
-  database_name               = var.database_name
-  database_port               = var.database_port
-  rds_secret_arn              = module.database.rds_secret_arn
-  bff_secret_arn              = module.secret.bff_client_secret_arn
-  driver_service_secret_arn   = module.secret.driver_service_secret_arn
-  capstone_vpc_id             = module.network.capstone_vpc_id
-  capstone_bff_tg_arn         = module.alb.capstone_bff_tg_arn
-  bff_oauth2_secret_arn       = module.secret.bff_oauth2_secret_arn
-  ecs_desired_task            = var.ecs_desired_task
+  container_tags                             = var.container_tags
+  driver_service_ecr_uri                     = var.driver_service_ecr_uri
+  bff_client_ecr_uri                         = var.bff_client_ecr_uri
+  capstone_private_sg_id                     = module.security.capstone_private_security_group_id
+  capstone_private_subnet_ids                = module.network.capstone_private_subnet_ids
+  ecs_capstone_app_log_group                 = module.monitor.ecs_capstone_app_log_group
+  primary_aws_region                         = var.primary_aws_region
+  capstone_aurora_cluster_ep                 = module.database.capstone_aurora_cluster_ep
+  database_name                              = var.database_name
+  database_port                              = var.database_port
+  rds_secret_arn                             = module.database.rds_secret_arn
+  bff_secret_arn                             = module.secret.bff_client_secret_arn
+  driver_service_secret_arn                  = module.secret.driver_service_secret_arn
+  capstone_vpc_id                            = module.network.capstone_vpc_id
+  capstone_bff_tg_arn                        = module.alb.capstone_bff_tg_arn
+  bff_oauth2_secret_arn                      = module.secret.bff_oauth2_secret_arn
+  ecs_desired_task                           = var.ecs_desired_task
+  driver_blue_green_hook_function_arn        = module.driver_blue_green_hook.driver_blue_green_hook_function_arn
+  driver_blue_green_hook_ecs_assume_role_arn = module.driver_blue_green_hook.driver_blue_green_hook_ecs_assume_role_arn
+  driver_health_path                         = var.driver_health_path
+  driver_health_url                          = module.alb.capstone_alb_dns
 
-  depends_on = [module.database, module.redis]
+  depends_on = [module.database, module.redis, module.driver_blue_green_hook]
 }
 
 # =====================
