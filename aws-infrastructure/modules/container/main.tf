@@ -219,7 +219,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
 
   # Enabled Service Connect configuration + service's DNS to be discoverable from other consumer services
   service_connect_configuration {
-    enabled   = true
+    enabled = true
     #namespace = aws_service_discovery_private_dns_namespace.capstone-service-connect-namespace.arn
 
     service {
@@ -378,7 +378,7 @@ resource "aws_ecs_service" "ecs-capstone-bff-client" {
 
   // Service Connect consumer enabled, does NOT have to be discovered by other Service Connect clients
   service_connect_configuration {
-    enabled   = true
+    enabled = true
     #namespace = aws_service_discovery_private_dns_namespace.capstone-service-connect-namespace.arn
   }
 
