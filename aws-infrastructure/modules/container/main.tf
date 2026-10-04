@@ -145,7 +145,7 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
           protocol      = "tcp"
 
           // HTTP base for shift traffic in blue/green deployments testing.
-          # appProtocol = "http"
+          appProtocol = "http"
         }
       ]
       environment = [
