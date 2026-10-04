@@ -145,7 +145,7 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
           protocol      = "tcp"
 
           // HTTP base for shift traffic in blue/green deployments testing.
-          appProtocol = "http"
+          # appProtocol = "http"
         }
       ]
       environment = [
@@ -228,14 +228,15 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
         port     = 8082
 
         // Explicit a header flag to shift the traffic on green revision
-        test_traffic_rules {
-          header {
-            name = "x-amzn-ecs-blue-green-test"
-            value {
-              exact = "true"
-            }
-          }
-        }
+
+        # test_traffic_rules {
+        #   header {
+        #     name = "x-amzn-ecs-blue-green-test"
+        #     value {
+        #       exact = "true"
+        #     }
+        #   }
+        # }
       }
     }
   }
@@ -245,32 +246,33 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
   health_check_grace_period_seconds = 60
 
   // ECS Deployment controller by default. Configured for enabling the ECS Blue/Green strategy
-  deployment_configuration {
-    strategy             = "BLUE_GREEN"
-    bake_time_in_minutes = 30
 
-    // Configure lambda function for lifecycle hook on blue/green deployment stages
-    lifecycle_hook {
-      hook_target_arn = var.driver_blue_green_hook_function_arn
-      role_arn        = var.driver_blue_green_hook_ecs_assume_role_arn
-
-      // Traffic shifted completely. Green revision gets ready received test traffic
-      lifecycle_stages = [
-        "POST_TEST_TRAFFIC_SHIFT"
-      ]
-
-      // Explicit health check URL on the green revision
-      hook_details = jsonencode({
-        health_url  = "http://${var.driver_health_url}"
-        health_path = var.driver_health_path
-      })
-
-      //Request time-out from the hook function
-      timeout_configuration {
-        timeout_in_minutes = "1"
-      }
-    }
-  }
+  # deployment_configuration {
+  #   strategy             = "BLUE_GREEN"
+  #   bake_time_in_minutes = 30
+  #
+  #   // Configure lambda function for lifecycle hook on blue/green deployment stages
+  #   lifecycle_hook {
+  #     hook_target_arn = var.driver_blue_green_hook_function_arn
+  #     role_arn        = var.driver_blue_green_hook_ecs_assume_role_arn
+  #
+  #     // Traffic shifted completely. Green revision gets ready received test traffic
+  #     lifecycle_stages = [
+  #       "POST_TEST_TRAFFIC_SHIFT"
+  #     ]
+  #
+  #     // Explicit health check URL on the green revision
+  #     hook_details = jsonencode({
+  #       health_url  = "http://${var.driver_health_url}"
+  #       health_path = var.driver_health_path
+  #     })
+  #
+  #     //Request time-out from the hook function
+  #     timeout_configuration {
+  #       timeout_in_minutes = "1"
+  #     }
+  #   }
+  # }
 }
 
 #===============================
