@@ -143,9 +143,6 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
           containerPort = 8082
           hostPort      = 8082
           protocol      = "tcp"
-
-          // HTTP base for shift traffic in blue/green deployments testing.
-          appProtocol = "http"
         }
       ]
       environment = [
@@ -226,16 +223,6 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
       client_alias {
         dns_name = "driver-service"
         port     = 8082
-
-        // Explicit a header flag to shift the traffic on green revision
-        test_traffic_rules {
-          header {
-            name = "x-amzn-ecs-blue-green-test"
-            value {
-              exact = "true"
-            }
-          }
-        }
       }
     }
   }
@@ -259,7 +246,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
         "POST_TEST_TRAFFIC_SHIFT"
       ]
 
-      // Explicit health check URL on the green revision
+      // TODO: Need re-working on the green revision health check
       hook_details = jsonencode({
         health_url  = "http://${var.driver_health_url}"
         health_path = var.driver_health_path
