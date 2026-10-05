@@ -346,6 +346,9 @@ resource "aws_ecs_task_definition" "capstone-bff-client-fargate-td" {
 # BFF-client ECS service
 #==========================
 resource "aws_ecs_service" "ecs-capstone-bff-client" {
+  depends_on = [
+    aws_ecs_service.ecs-capstone-driver-service
+  ]
   name            = "bff-client"
   cluster         = aws_ecs_cluster.capstone-ecs-cluster.id
   task_definition = aws_ecs_task_definition.capstone-bff-client-fargate-td.arn
