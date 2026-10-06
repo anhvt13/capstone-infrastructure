@@ -278,11 +278,19 @@ resource "aws_vpc_security_group_egress_rule" "alb-sg-outbound-rule" {
   ip_protocol       = "-1"
 }
 
-resource "aws_vpc_security_group_egress_rule" "driver-blue-green-hook-outbound-rule" {
+resource "aws_vpc_security_group_egress_rule" "driver-blue-green-hook-outbound-https-rule" {
   security_group_id = aws_security_group.capstone-driver-blue-green-hook-function-sg.id
   ip_protocol       = "tcp"
   from_port         = 443
   to_port           = 443
+  cidr_ipv4         = var.capstone_vpc_cidr_block
+}
+
+resource "aws_vpc_security_group_egress_rule" "driver-blue-green-hook-outbound-ecs-rule" {
+  security_group_id = aws_security_group.capstone-driver-blue-green-hook-function-sg.id
+  ip_protocol       = "tcp"
+  from_port         = 8082
+  to_port           = 8082
   cidr_ipv4         = var.capstone_vpc_cidr_block
 }
 
