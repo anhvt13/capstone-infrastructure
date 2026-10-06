@@ -47,11 +47,21 @@ jobs:
           role-to-assume: arn:aws:iam::249899229305:role/github-actions-infrastructure-deployment-role
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Install Lambda dependencies
+        working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
+        run: |
+          npm ci
+
       - name: Package Lambda Function
         working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
         run: |
           rm -f driver-blue-green-hook-function.zip
-          zip -j driver-blue-green-hook-function.zip index.mjs
+
+          zip -r driver-blue-green-hook-function.zip \
+            index.mjs \
+            package.json \
+            package-lock.json \
+            node_modules
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
@@ -94,11 +104,21 @@ jobs:
           role-to-assume: arn:aws:iam::249899229305:role/github-actions-infrastructure-deployment-role
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Install Lambda dependencies
+        working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
+        run: |
+          npm ci
+
       - name: Package Lambda Function
         working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
         run: |
           rm -f driver-blue-green-hook-function.zip
-          zip -j driver-blue-green-hook-function.zip index.mjs
+          
+          zip -r driver-blue-green-hook-function.zip \
+            index.mjs \
+            package.json \
+            package-lock.json \
+            node_modules
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4

@@ -241,20 +241,14 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
       hook_target_arn = var.driver_blue_green_hook_function_arn
       role_arn        = var.driver_blue_green_hook_ecs_assume_role_arn
 
-      // Traffic shifted completely. Green revision gets ready received test traffic
+      // Green revision has been scaled up and its tasks have passed health checks. Starting the lambda validation
       lifecycle_stages = [
-        "POST_TEST_TRAFFIC_SHIFT"
+        "POST_SCALE_UP"
       ]
-
-      // TODO: Need re-working on the green revision health check
-      hook_details = jsonencode({
-        health_url  = "http://${var.driver_health_url}"
-        health_path = var.driver_health_path
-      })
 
       //Request time-out from the hook function
       timeout_configuration {
-        timeout_in_minutes = "1"
+        timeout_in_minutes = 1
       }
     }
   }
