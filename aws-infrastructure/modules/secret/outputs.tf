@@ -12,3 +12,8 @@ output "bff_oauth2_secret_arn" {
   description = "The ARN of bff OAuth2 secret"
   value       = aws_secretsmanager_secret.bff-oauth2-credential.arn
 }
+
+output "driver_bg_validator_secret_arn" {
+  description = "The ARN of driver blue/green hook validator secret"
+  value       = aws_secretsmanager_secret.driver-bg-validator-secret.arn
+}

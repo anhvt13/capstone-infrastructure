@@ -88,6 +88,9 @@ module "secret" {
 module "driver_blue_green_hook" {
   source = "./modules/function/driver-blue-green-hook-function"
 
+  capstone_private_subnet_ids                    = module.network.capstone_private_subnet_ids
+  capstone_driver_blue_green_hook_function_sg_id = module.security.capstone_driver_blue_green_hook_function_sg_id
+  driver_bg_validator_secret_arn                 = module.secret.driver_bg_validator_secret_arn
 }
 
 # =====================

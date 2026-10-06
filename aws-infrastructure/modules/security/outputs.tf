@@ -18,3 +18,8 @@ output "capstone_alb_security_group_id" {
   value       = aws_security_group.capstone-alb-sg.id
 }
 
+output "capstone_driver_blue_green_hook_function_sg_id" {
+  description = "Id of driver blue/green hook function security group"
+  value       = aws_security_group.capstone-driver-blue-green-hook-function-sg.id
+}
+

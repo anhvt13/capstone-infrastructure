@@ -22,5 +22,6 @@ aws-infrastructure/.terraform/
 .vscode/
 
 # Function scripts
+node_modules/
 *.zip
 

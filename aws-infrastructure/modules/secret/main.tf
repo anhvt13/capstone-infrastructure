@@ -45,3 +45,19 @@ resource "aws_secretsmanager_secret" "bff-oauth2-credential" {
     var.secret_tags
   )
 }
+
+#===================================================================
+# Secrets of driver blue/green hook function validator certificate
+#===================================================================
+resource "aws_secretsmanager_secret" "driver-bg-validator-secret" {
+  name                    = "capstone/bg/tls"
+  description             = "Blue green validator TLS secrets"
+  recovery_window_in_days = 0
+
+  tags = merge(
+    {
+      Name = "driver-bg-validator-secret"
+    },
+    var.secret_tags
+  )
+}

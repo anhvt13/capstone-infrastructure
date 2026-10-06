@@ -180,6 +180,19 @@ resource "aws_security_group" "capstone-alb-sg" {
   )
 }
 
+resource "aws_security_group" "capstone-driver-blue-green-hook-function-sg" {
+  name        = "driver-blue-green-hook-function-sg"
+  description = "Driver blue/green hook function security group"
+  vpc_id      = var.capstone_vpc_id
+
+  tags = merge(
+    {
+      Name = "driver-blue-green-hook-function-sg"
+    },
+    var.security_tags
+  )
+}
+
 # ============================
 # Security Group Rule
 # ============================
@@ -220,6 +233,15 @@ resource "aws_vpc_security_group_ingress_rule" "private-sg-inbound-rule-self-ref
   security_group_id            = aws_security_group.capstone-private-sg.id
   referenced_security_group_id = aws_security_group.capstone-private-sg.id
   ip_protocol                  = "-1"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "private-sg-inbound-rule-for-driver-bg-hook-function-sg" {
+  description                  = "Allow inbound from driver blue/green function sg access to private sg"
+  security_group_id            = aws_security_group.capstone-private-sg.id
+  referenced_security_group_id = aws_security_group.capstone-driver-blue-green-hook-function-sg.id
+  ip_protocol                  = "tcp"
+  from_port                    = 8082
+  to_port                      = 8082
 }
 
 resource "aws_vpc_security_group_egress_rule" "private-sg-outbound-rule" {
@@ -281,6 +303,12 @@ resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-rule" {
 resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-bastion-sg-rule" {
   security_group_id            = aws_security_group.capstone-vpc-endpoint-sg.id
   referenced_security_group_id = var.bastion_host_security_group_id
+  ip_protocol                  = "-1"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-driver-bg-hook-function-sg-rule" {
+  security_group_id            = aws_security_group.capstone-vpc-endpoint-sg.id
+  referenced_security_group_id = aws_security_group.capstone-driver-blue-green-hook-function-sg.id
   ip_protocol                  = "-1"
 }
 
