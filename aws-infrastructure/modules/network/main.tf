@@ -303,7 +303,7 @@ resource "aws_vpc_endpoint" "secrets-manager-ep" {
 
   tags = merge(
     {
-      Name = "capstone-secrets-managet-interface-endpoint"
+      Name = "capstone-secrets-manager-interface-endpoint"
     },
     var.network_tags
   )
