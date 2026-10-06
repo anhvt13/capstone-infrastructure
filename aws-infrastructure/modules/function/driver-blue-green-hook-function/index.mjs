@@ -11,6 +11,7 @@ import {
 } from "@aws-sdk/client-secrets-manager";
 
 import https from "node:https";
+import net from "node:net";
 
 const ecs = new ECSClient({});
 const secretsManager = new SecretsManagerClient({});
@@ -169,6 +170,28 @@ function validateHealthResponse(result) {
     }
 }
 
+function checkTcp(privateIp) {
+    return new Promise((resolve, reject) => {
+        const socket = net.createConnection({
+            host: privateIp,
+            port: Number(process.env.DRIVER_PORT || 8082),
+            timeout: 5_000
+        });
+
+        socket.on("connect", () => {
+            socket.destroy();
+            resolve();
+        });
+
+        socket.on("timeout", () => {
+            socket.destroy();
+            reject(new Error("TCP connection timed out"));
+        });
+
+        socket.on("error", reject);
+    });
+}
+
 export const handler = async (event) => {
     console.log(
         "Lifecycle event:",
@@ -199,6 +222,10 @@ export const handler = async (event) => {
         for (const task of green.tasks) {
             const privateIp = getPrivateIp(task);
             console.log(`Validating green task ${task.taskArn} at ${privateIp}:8082`);
+
+            console.log(`Testing TCP ${privateIp}:8082`);
+            await checkTcp(privateIp);
+            console.log(`TCP connection to ${privateIp}:8082 succeeded`);
 
             const result = await checkDriverHealth(privateIp, tls);
             console.log(`Driver response: HTTP ${result.statusCode}`);
