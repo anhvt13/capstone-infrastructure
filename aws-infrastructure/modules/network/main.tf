@@ -219,7 +219,7 @@ resource "aws_route_table_association" "capstone-db-rt-associate-2" {
 }
 
 # ===============================
-# S3 Endpoint
+# S3 Gateway Endpoint
 # ================================
 resource "aws_vpc_endpoint" "capstone-s3-gw-ep" {
   vpc_id            = aws_vpc.capstone-vpc.id
@@ -238,14 +238,15 @@ resource "aws_vpc_endpoint" "capstone-s3-gw-ep" {
 }
 
 # ===============================
-# ECR Endpoint
+# ECR Interface Endpoint
 # ================================
 resource "aws_vpc_endpoint" "ecr-ep" {
   vpc_id            = aws_vpc.capstone-vpc.id
   service_name      = "com.amazonaws.${var.aws_region}.ecr.api"
   vpc_endpoint_type = "Interface"
   subnet_ids = [
-    aws_subnet.capstone-private-subnet-1.id
+    aws_subnet.capstone-private-subnet-1.id,
+    aws_subnet.capstone-private-subnet-2.id
   ]
   security_group_ids = [
     var.capstone_vpc_endpoint_sg_id
@@ -254,21 +255,22 @@ resource "aws_vpc_endpoint" "ecr-ep" {
 
   tags = merge(
     {
-      Name = "capstone-ecr-api-endpoint"
+      Name = "capstone-ecr-interface-endpoint"
     },
     var.network_tags
   )
 }
 
 # ======================================
-# Docker Endpoint (Docker layer in ECR)
+# Docker Interface Endpoint (Docker layer in ECR)
 # =======================================
 resource "aws_vpc_endpoint" "ecr-dkr-ep" {
   vpc_id            = aws_vpc.capstone-vpc.id
   service_name      = "com.amazonaws.${var.aws_region}.ecr.dkr"
   vpc_endpoint_type = "Interface"
   subnet_ids = [
-    aws_subnet.capstone-private-subnet-1.id
+    aws_subnet.capstone-private-subnet-1.id,
+    aws_subnet.capstone-private-subnet-2.id
   ]
   security_group_ids = [
     var.capstone_vpc_endpoint_sg_id
@@ -277,21 +279,22 @@ resource "aws_vpc_endpoint" "ecr-dkr-ep" {
 
   tags = merge(
     {
-      Name = "capstone-ecr-dkr-endpoint"
+      Name = "capstone-ecr-dkr-interface-endpoint"
     },
     var.network_tags
   )
 }
 
 # ======================================
-# Secrets Manager Endpoint
+# Secrets Manager Interface Endpoint
 # =======================================
 resource "aws_vpc_endpoint" "secrets-manager-ep" {
   vpc_id            = aws_vpc.capstone-vpc.id
   service_name      = "com.amazonaws.${var.aws_region}.secretsmanager"
   vpc_endpoint_type = "Interface"
   subnet_ids = [
-    aws_subnet.capstone-private-subnet-1.id
+    aws_subnet.capstone-private-subnet-1.id,
+    aws_subnet.capstone-private-subnet-2.id
   ]
   security_group_ids = [
     var.capstone_vpc_endpoint_sg_id
@@ -300,7 +303,31 @@ resource "aws_vpc_endpoint" "secrets-manager-ep" {
 
   tags = merge(
     {
-      Name = "capstone-secrets-managet-endpoint"
+      Name = "capstone-secrets-managet-interface-endpoint"
+    },
+    var.network_tags
+  )
+}
+
+# ======================================
+# ECS Interface Endpoint
+# =======================================
+resource "aws_vpc_endpoint" "ecs" {
+  vpc_id            = aws_vpc.capstone-vpc.id
+  service_name      = "com.amazonaws.${var.aws_region}.ecs"
+  vpc_endpoint_type = "Interface"
+  subnet_ids = [
+    aws_subnet.capstone-private-subnet-1.id,
+    aws_subnet.capstone-private-subnet-2.id
+  ]
+  security_group_ids = [
+    var.capstone_vpc_endpoint_sg_id
+  ]
+  private_dns_enabled = true
+
+  tags = merge(
+    {
+      Name = "casptone-ecs-interface-endpoint"
     },
     var.network_tags
   )

@@ -278,6 +278,14 @@ resource "aws_vpc_security_group_egress_rule" "alb-sg-outbound-rule" {
   ip_protocol       = "-1"
 }
 
+resource "aws_vpc_security_group_egress_rule" "driver-blue-green-hook-outbound-rule" {
+  security_group_id = aws_security_group.capstone-driver-blue-green-hook-function-sg.id
+  ip_protocol       = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_ipv4         = var.capstone_vpc_cidr_block
+}
+
 # ==================================
 # VPC interface endpoint security group
 # ==================================
@@ -309,7 +317,9 @@ resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-bastion-
 resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-driver-bg-hook-function-sg-rule" {
   security_group_id            = aws_security_group.capstone-vpc-endpoint-sg.id
   referenced_security_group_id = aws_security_group.capstone-driver-blue-green-hook-function-sg.id
-  ip_protocol                  = "-1"
+  ip_protocol                  = "tcp"
+  from_port                    = 443
+  to_port                      = 443
 }
 
 resource "aws_vpc_security_group_egress_rule" "vpc-endpoint-sg-outbound-rule" {
