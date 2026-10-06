@@ -248,7 +248,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
 
       //Request time-out from the hook function
       timeout_configuration {
-        timeout_in_minutes = 1
+        timeout_in_minutes = 15
       }
     }
   }

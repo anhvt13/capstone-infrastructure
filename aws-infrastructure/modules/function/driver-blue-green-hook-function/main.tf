@@ -6,7 +6,7 @@ resource "aws_lambda_function" "driver-blue-green-hook-function" {
   handler          = "index.handler"
   filename         = "${path.module}/driver-blue-green-hook-function.zip"
   source_code_hash = filebase64sha256("${path.module}/driver-blue-green-hook-function.zip")
-  timeout          = 30
+  timeout          = 6000
   vpc_config {
     subnet_ids         = var.capstone_private_subnet_ids
     security_group_ids = [var.capstone_driver_blue_green_hook_function_sg_id]
