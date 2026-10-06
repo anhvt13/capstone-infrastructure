@@ -12,16 +12,21 @@ import {
 
 import https from "node:https";
 import net from "node:net";
+import { X509Certificate } from "node:crypto";
 
 const ecs = new ECSClient({});
 const secretsManager = new SecretsManagerClient({});
 
 async function getTlsCredentials() {
+    console.log("=== getTlsCredentials: START ===");
+
     const result = await secretsManager.send(
         new GetSecretValueCommand({
             SecretId: process.env.DRIVER_BG_VALIDATOR_SECRET_ARN
         })
     );
+
+    console.log("=== getTlsCredentials: SECRET RECEIVED ===");
 
     if (!result.SecretString) {
         throw new Error("mTLS secret does not contain SecretString");
@@ -29,10 +34,42 @@ async function getTlsCredentials() {
 
     const secret = JSON.parse(result.SecretString);
 
+    console.log("=== getTlsCredentials: SECRET PARSED ===");
+
+    const ca = Buffer.from(
+        secret.driver_blue_green_hook_ca_cert_base64,
+        "base64"
+    ).toString("utf8");
+
+    const certPem = Buffer.from(
+        secret.driver_blue_green_hook_client_cert_base64,
+        "base64"
+    ).toString("utf8");
+
+    const key = Buffer.from(
+        secret.driver_blue_green_hook_client_key_base64,
+        "base64"
+    ).toString("utf8");
+
+    console.log("=== getTlsCredentials: CREDENTIALS DECODED ===");
+
+    const cert = new X509Certificate(certPem);
+
+    console.log("=== CLIENT CERTIFICATE ===");
+    console.log({
+        subject: cert.subject,
+        issuer: cert.issuer,
+        validFrom: cert.validFrom,
+        validTo: cert.validTo,
+        keyUsage: cert.keyUsage
+    });
+
+    console.log("=== getTlsCredentials: END ===");
+
     return {
-        ca: Buffer.from(secret.driver_blue_green_hook_ca_cert_base64, "base64").toString("utf8"),
-        cert: Buffer.from(secret.driver_blue_green_hook_client_cert_base64, "base64").toString("utf8"),
-        key: Buffer.from(secret.driver_blue_green_hook_client_key_base64, "base64").toString("utf8")
+        ca,
+        cert: certPem,
+        key
     };
 }
 
@@ -116,18 +153,22 @@ function checkDriverHealth(privateIp, tls) {
             path: process.env.DRIVER_HEALTH_PATH || "/actuator/health",
             method: "GET",
 
-            // TLS server identity
             servername: process.env.DRIVER_HOSTNAME || "driver-service",
 
-            // mTLS
             cert: tls.cert,
             key: tls.key,
             ca: tls.ca,
+
             rejectUnauthorized: true,
             timeout: 10_000
         }, response => {
+
+            console.log("HTTPS response:", response.statusCode);
+
             let body = "";
+
             response.setEncoding("utf8");
+
             response.on("data", chunk => {
                 body += chunk;
             });
@@ -140,12 +181,45 @@ function checkDriverHealth(privateIp, tls) {
             });
         });
 
+        request.on("socket", socket => {
+            console.log("TLS socket assigned");
+
+            socket.on("connect", () => {
+                console.log("TCP connected");
+            });
+
+            socket.on("secureConnect", () => {
+                console.log("TLS secureConnect fired");
+
+                console.log("authorized:", socket.authorized);
+                console.log("authorizationError:", socket.authorizationError);
+                console.log("protocol:", socket.getProtocol());
+                console.log("cipher:", socket.getCipher());
+                console.log("servername:", socket.servername);
+            });
+
+            socket.on("error", error => {
+                console.error("TLS socket error:", error);
+            });
+
+            socket.on("close", hadError => {
+                console.log("TLS socket closed, hadError:", hadError);
+            });
+        });
+
         request.on("timeout", () => {
+            console.error("HTTPS request timeout");
+
             request.destroy(
                 new Error("Driver health request timed out")
             );
         });
-        request.on("error", reject);
+
+        request.on("error", error => {
+            console.error("HTTPS request error:", error);
+            reject(error);
+        });
+
         request.end();
     });
 }
