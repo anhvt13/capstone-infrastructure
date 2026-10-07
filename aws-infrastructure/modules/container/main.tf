@@ -156,7 +156,7 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
         },
         {
           name  = "JAVA_TOOL_OPTIONS"
-          value = "-Djava.net.preferIPv4Stack=true"
+          value = "-Djava.net.preferIPv4Stack=true -Djavax.net.debug=ssl,handshake"
         }
       ]
       secrets = [
