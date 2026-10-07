@@ -234,7 +234,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
   // ECS Deployment controller by default. Configured for enabling the ECS Blue/Green strategy
   deployment_configuration {
     strategy             = "BLUE_GREEN"
-    bake_time_in_minutes = 30
+    bake_time_in_minutes = 5
 
     // Configure lambda function for lifecycle hook on blue/green deployment stages
     lifecycle_hook {
@@ -248,7 +248,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
 
       //Request time-out from the hook function
       timeout_configuration {
-        timeout_in_minutes = 15
+        timeout_in_minutes = 1
       }
     }
   }
