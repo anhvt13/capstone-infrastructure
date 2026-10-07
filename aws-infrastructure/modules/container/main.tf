@@ -156,7 +156,7 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
         },
         {
           name  = "JAVA_TOOL_OPTIONS"
-          value = "-Djava.net.preferIPv4Stack=true -Djavax.net.debug=ssl,handshake"
+          value = "-Djava.net.preferIPv4Stack=true"
         }
       ]
       secrets = [
@@ -241,9 +241,9 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
       hook_target_arn = var.driver_blue_green_hook_function_arn
       role_arn        = var.driver_blue_green_hook_ecs_assume_role_arn
 
-      // Green revision has been scaled up and its tasks have passed health checks. Starting the lambda validation
+      // ECS has completed the test traffic shift. The green revision is handling 100% of test traffic
       lifecycle_stages = [
-        "POST_SCALE_UP"
+        "POST_TEST_TRAFFIC_SHIFT"
       ]
 
       //Request time-out from the hook function
@@ -287,7 +287,7 @@ resource "aws_ecs_task_definition" "capstone-bff-client-fargate-td" {
         },
         {
           name  = "JAVA_TOOL_OPTIONS"
-          value = "-Djava.net.preferIPv4Stack=true -Djavax.net.debug=ssl,handshake"
+          value = "-Djava.net.preferIPv4Stack=true"
         }
       ]
       secrets = [
