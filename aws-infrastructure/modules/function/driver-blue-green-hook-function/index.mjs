@@ -10,71 +10,37 @@ import {
     GetSecretValueCommand
 } from "@aws-sdk/client-secrets-manager";
 
-import https from "node:https";
-import net from "node:net";
 import { X509Certificate } from "node:crypto";
+import tls from "node:tls";
+import net from "node:net";
+import https from "node:https";
 
 const ecs = new ECSClient({});
 const secretsManager = new SecretsManagerClient({});
 
-async function getTlsCredentials() {
-    console.log("=== getTlsCredentials: START ===");
+function parseServiceArn(serviceArn) {
+    const match = serviceArn.match(/^arn:[^:]+:ecs:[^:]+:[^:]+:service\/([^/]+)\/(.+)$/);
 
-    const result = await secretsManager.send(
-        new GetSecretValueCommand({
-            SecretId: process.env.DRIVER_BG_VALIDATOR_SECRET_ARN
-        })
-    );
-
-    console.log("=== getTlsCredentials: SECRET RECEIVED ===");
-
-    if (!result.SecretString) {
-        throw new Error("mTLS secret does not contain SecretString");
+    if (!match) {
+        throw new Error(`Invalid ECS service ARN: ${serviceArn}`);
     }
 
-    const secret = JSON.parse(result.SecretString);
-
-    console.log("=== getTlsCredentials: SECRET PARSED ===");
-
-    const ca = Buffer.from(
-        secret.driver_blue_green_hook_ca_cert_base64,
-        "base64"
-    ).toString("utf8");
-
-    const certPem = Buffer.from(
-        secret.driver_blue_green_hook_client_cert_base64,
-        "base64"
-    ).toString("utf8");
-
-    const key = Buffer.from(
-        secret.driver_blue_green_hook_client_key_base64,
-        "base64"
-    ).toString("utf8");
-
-    console.log("=== getTlsCredentials: CREDENTIALS DECODED ===");
-
-    const cert = new X509Certificate(certPem);
-
-    console.log("=== CLIENT CERTIFICATE ===");
-    console.log({
-        subject: cert.subject,
-        issuer: cert.issuer,
-        validFrom: cert.validFrom,
-        validTo: cert.validTo,
-        keyUsage: cert.keyUsage
-    });
-
-    console.log("=== getTlsCredentials: END ===");
-
     return {
-        ca,
-        cert: certPem,
-        key
+        cluster: match[1],
+        service: match[2]
     };
 }
 
 async function findGreenTasks(serviceArn, revisionArn) {
     const { cluster, service } = parseServiceArn(serviceArn);
+    console.log("=== GREEN TASK DISCOVERY ===");
+    console.log({
+        cluster,
+        service,
+        revisionArn
+    });
+
+
     const revisionResult = await ecs.send(
         new DescribeServiceRevisionsCommand({
             serviceRevisionArns: [revisionArn]
@@ -87,6 +53,7 @@ async function findGreenTasks(serviceArn, revisionArn) {
     }
 
     const greenTaskDefinition = revision.taskDefinition;
+
     const listResult = await ecs.send(
         new ListTasksCommand({
             cluster,
@@ -108,6 +75,12 @@ async function findGreenTasks(serviceArn, revisionArn) {
     const greenTasks = describeResult.tasks?.filter(
         task => task.lastStatus === "RUNNING" &&
         task.taskDefinitionArn === greenTaskDefinition) ?? [];
+        console.log("Found green tasks:", greenTasks.map(task => ({
+            taskArn: task.taskArn,
+            taskDefinitionArn: task.taskDefinitionArn,
+            lastStatus: task.lastStatus,
+            desiredStatus: task.desiredStatus
+        })));
 
     if (greenTasks.length === 0) {
         throw new Error(`No running green tasks found for ${greenTaskDefinition}`);
@@ -121,51 +94,243 @@ async function findGreenTasks(serviceArn, revisionArn) {
     };
 }
 
-function parseServiceArn(serviceArn) {
-    const match = serviceArn.match(/^arn:[^:]+:ecs:[^:]+:[^:]+:service\/([^/]+)\/(.+)$/);
-
-    if (!match) {
-        throw new Error(`Invalid ECS service ARN: ${serviceArn}`);
-    }
-
-    return {
-        cluster: match[1],
-        service: match[2]
-    };
-}
-
 function getPrivateIp(task) {
-    const eni = task.attachments?.find(attachment => attachment.type === "ElasticNetworkInterface");
-    const privateIp = eni?.details?.find(detail => detail.name === "privateIPv4Address")?.value;
+    const eni = task.attachments?.find(
+        attachment => attachment.type === "ElasticNetworkInterface"
+    );
+    const privateIp = eni?.details?.find(
+        detail => detail.name === "privateIPv4Address"
+    )?.value;
 
     if (!privateIp) {
         throw new Error(`Private IP not found for task ${task.taskArn}`);
     }
 
+    console.log(`Green task privateIP : ${privateIp}`);
     return privateIp;
 }
 
-function checkDriverHealth(privateIp, tls) {
+async function getTlsCredentials() {
+    console.log("Start getting secret credentials");
+
+    const result = await secretsManager.send(
+        new GetSecretValueCommand({
+            SecretId: process.env.DRIVER_BG_VALIDATOR_SECRET_ARN
+        })
+    );
+
+    console.log("SECRET RECEIVED");
+
+    if (!result.SecretString) {
+        throw new Error("mTLS secret does not contain SecretString");
+    }
+
+    const secret = JSON.parse(result.SecretString);
+
+    console.log("SECRET PARSED");
+
+    const ca = Buffer.from(
+        secret.driver_blue_green_hook_ca_cert_base64,
+        "base64"
+    ).toString("utf8");
+
+    const certPem = Buffer.from(
+        secret.driver_blue_green_hook_client_cert_base64,
+        "base64"
+    ).toString("utf8");
+
+    const key = Buffer.from(
+        secret.driver_blue_green_hook_client_key_base64,
+        "base64"
+    ).toString("utf8");
+
+    console.log("CREDENTIALS DECODED");
+
+    const cert = new X509Certificate(certPem);
+
+    console.log("CLIENT CERTIFICATE");
+    console.log({
+        subject: cert.subject,
+        issuer: cert.issuer,
+        validFrom: cert.validFrom,
+        validTo: cert.validTo,
+        keyUsage: cert.keyUsage
+    });
+
+    return {
+        ca,
+        cert: certPem,
+        key
+    };
+}
+
+function checkTcp(privateIp) {
     return new Promise((resolve, reject) => {
-        const request = https.request({
+        const port = Number(process.env.DRIVER_PORT || 8082);
+        console.log(`TCP Connection validate: ${privateIp}:${port}`);
+
+        const socket = net.createConnection({
             host: privateIp,
-            port: Number(process.env.DRIVER_PORT || 8082),
-            path: process.env.DRIVER_HEALTH_PATH || "/actuator/health",
+            port,
+            timeout: 5_000
+        });
+
+        socket.once("connect", () => {
+            console.log("TCP CONNECTION SUCCESS");
+            socket.destroy();
+            resolve();
+        });
+
+        socket.once("timeout", () => {
+            console.error("TCP CONNECTION TIMEOUT");
+            socket.destroy();
+            reject(new Error("TCP connection timed out"));
+        });
+
+        socket.once("error", error => {
+            console.error("TCP CONNECTION FAILED");
+            console.error({
+                code: error.code,
+                message: error.message
+            });
+
+            reject(error);
+        });
+    });
+}
+
+function checkDriverTls(privateIp, tlsCredentials) {
+    return new Promise((resolve, reject) => {
+        const port = Number(process.env.DRIVER_PORT || 8082);
+        const hostname = process.env.DRIVER_HOSTNAME || "driver-service";
+
+        console.log("=== TLS TEST ===");
+        console.log({
+            destination: `${privateIp}:${port}`,
+            servername: hostname
+        });
+
+        const socket = tls.connect({
+            host: privateIp,
+            port,
+            servername: hostname,
+            cert: tlsCredentials.cert,
+            key: tlsCredentials.key,
+            ca: tlsCredentials.ca,
+            rejectUnauthorized: true,
+            minVersion: "TLSv1.2",
+            maxVersion: "TLSv1.3",
+            timeout: 10_000
+        });
+
+        let settled = false;
+
+        const succeed = () => {
+            if (settled) return;
+            settled = true;
+
+            console.log("=== TLS HANDSHAKE SUCCESS ===");
+            console.log({
+                authorized: socket.authorized,
+                authorizationError: socket.authorizationError,
+                protocol: socket.getProtocol(),
+                cipher: socket.getCipher(),
+                servername: socket.servername
+            });
+
+            socket.destroy();
+            resolve();
+        };
+
+        const fail = (error) => {
+            if (settled) return;
+            settled = true;
+
+            console.error("=== TLS HANDSHAKE FAILED ===");
+            console.error({
+                code: error?.code,
+                message: error?.message,
+                syscall: error?.syscall,
+                address: error?.address,
+                port: error?.port
+            });
+
+            socket.destroy();
+            reject(error);
+        };
+
+        socket.once("connect", () => {
+            console.log("=== TLS TCP CONNECTION ESTABLISHED ===");
+        });
+
+        socket.once("secureConnect", () => {
+            if (!socket.authorized) {
+                fail(
+                    new Error(
+                        `TLS certificate not authorized: ${socket.authorizationError}`
+                    )
+                );
+                return;
+            }
+
+            succeed();
+        });
+
+        socket.once("error", fail);
+
+        socket.once("timeout", () => {
+            fail(new Error("TLS handshake timed out"));
+        });
+    });
+}
+
+function checkDriverHealth(privateIp, tlsCredentials) {
+    return new Promise((resolve, reject) => {
+
+        const port = Number(process.env.DRIVER_PORT || 8082);
+        const hostname = process.env.DRIVER_HOSTNAME || "driver-service";
+        const healthPath = process.env.DRIVER_HEALTH_PATH || "/actuator/health";
+
+        console.log("=== DRIVER HTTPS HEALTH TEST ===");
+        console.log({
+            destination: `${privateIp}:${port}`,
+            hostname,
+            path: healthPath
+        });
+
+        const request = https.request({
+            // TCP destination
+            host: privateIp,
+            port,
+
+            // TLS certificate hostname / SNI
+            servername: hostname,
+
+            // HTTP request
             method: "GET",
+            path: healthPath,
 
-            servername: process.env.DRIVER_HOSTNAME || "driver-service",
-
-            cert: tls.cert,
-            key: tls.key,
-            ca: tls.ca,
+            // mTLS
+            cert: tlsCredentials.cert,
+            key: tlsCredentials.key,
+            ca: tlsCredentials.ca,
 
             rejectUnauthorized: true,
-            timeout: 10_000
+
+            timeout: 10_000,
+
+            headers: {
+                Host: hostname,
+                Accept: "application/json"
+            }
         }, response => {
-
-            console.log("HTTPS response:", response.statusCode);
-
             let body = "";
+
+            console.log("=== HTTP RESPONSE ===");
+            console.log({
+                statusCode: response.statusCode,
+                headers: response.headers
+            });
 
             response.setEncoding("utf8");
 
@@ -174,151 +339,169 @@ function checkDriverHealth(privateIp, tls) {
             });
 
             response.on("end", () => {
+                console.log("=== DRIVER HEALTH BODY ===");
+                console.log(body);
+
+                if (response.statusCode !== 200) {
+                    reject(
+                        new Error(
+                            `Driver returned HTTP ${response.statusCode}: ${body}`
+                        )
+                    );
+                    return;
+                }
+
+                let health;
+
+                try {
+                    health = JSON.parse(body);
+                } catch {
+                    reject(
+                        new Error(
+                            `Driver returned invalid JSON: ${body}`
+                        )
+                    );
+                    return;
+                }
+
+                if (health.status !== "UP") {
+                    reject(
+                        new Error(
+                            `Driver health status is ${health.status}`
+                        )
+                    );
+                    return;
+                }
+
+                console.log("=== DRIVER HEALTH CHECK PASSED ===");
+
                 resolve({
                     statusCode: response.statusCode,
-                    body
+                    health
                 });
             });
         });
 
         request.on("socket", socket => {
-            console.log("TLS socket assigned");
+            console.log("=== HTTPS SOCKET ASSIGNED ===");
 
             socket.on("connect", () => {
-                console.log("TCP connected");
+                console.log("=== TCP CONNECTION ESTABLISHED ===");
             });
 
             socket.on("secureConnect", () => {
-                console.log("TLS secureConnect fired");
+                console.log("=== TLS HANDSHAKE SUCCESS ===");
 
-                console.log("authorized:", socket.authorized);
-                console.log("authorizationError:", socket.authorizationError);
-                console.log("protocol:", socket.getProtocol());
-                console.log("cipher:", socket.getCipher());
-                console.log("servername:", socket.servername);
+                console.log({
+                    authorized: socket.authorized,
+                    authorizationError: socket.authorizationError,
+                    protocol: socket.getProtocol(),
+                    cipher: socket.getCipher(),
+                    servername: socket.servername
+                });
+
+                if (!socket.authorized) {
+                    console.error(
+                        "=== TLS CERTIFICATE NOT AUTHORIZED ===",
+                        socket.authorizationError
+                    );
+                }
             });
-
-            socket.on("error", error => {
-                console.error("TLS socket error:", error);
-            });
-
-            socket.on("close", hadError => {
-                console.log("TLS socket closed, hadError:", hadError);
-            });
-        });
-
-        request.on("timeout", () => {
-            console.error("HTTPS request timeout");
-
-            request.destroy(
-                new Error("Driver health request timed out")
-            );
         });
 
         request.on("error", error => {
-            console.error("HTTPS request error:", error);
+            console.error("=== HTTPS REQUEST FAILED ===");
+
+            console.error({
+                code: error.code,
+                message: error.message
+            });
+
             reject(error);
+        });
+
+        request.on("timeout", () => {
+            console.error("=== HTTPS REQUEST TIMEOUT ===");
+            request.destroy();
+            reject(
+                new Error("HTTPS request timed out")
+            );
         });
 
         request.end();
     });
 }
 
-function validateHealthResponse(result) {
-    if (result.statusCode !== 200) {
-        throw new Error(
-            `Driver returned HTTP ${result.statusCode}: ${result.body}`
-        );
-    }
-
-    let health;
-
-    try {
-        health = JSON.parse(result.body);
-    } catch {
-        throw new Error(`Driver returned invalid health response: ${result.body}`);
-    }
-
-    if (health.status !== "UP") {
-        throw new Error(`Driver health status is ${health.status}`);
-    }
-}
-
-function checkTcp(privateIp) {
-    return new Promise((resolve, reject) => {
-        const socket = net.createConnection({
-            host: privateIp,
-            port: Number(process.env.DRIVER_PORT || 8082),
-            timeout: 5_000
-        });
-
-        socket.on("connect", () => {
-            socket.destroy();
-            resolve();
-        });
-
-        socket.on("timeout", () => {
-            socket.destroy();
-            reject(new Error("TCP connection timed out"));
-        });
-
-        socket.on("error", reject);
-    });
-}
 
 export const handler = async (event) => {
+    console.log("========================================");
+    console.log("DRIVER BLUE/GREEN LIFECYCLE HOOK");
+    console.log("========================================");
     console.log(
         "Lifecycle event:",
         JSON.stringify(event, null, 2)
     );
 
+    const serviceArn = event.executionDetails?.serviceArn;
+    const revisionArn = event.executionDetails?.targetServiceRevisionArn;
+
+    if (!serviceArn) {
+        throw new Error("Missing executionDetails.serviceArn");
+    }
+
+    if (!revisionArn) {
+        throw new Error("Missing executionDetails.targetServiceRevisionArn");
+    }
+
+    console.log(
+        "Target service revision:",
+        revisionArn
+    );
+
     try {
-        const serviceArn = event.executionDetails?.serviceArn;
-        const revisionArn = event.executionDetails?.targetServiceRevisionArn;
-
-        if (!serviceArn || !revisionArn) {
-            throw new Error("Missing serviceArn or targetServiceRevisionArn");
-        }
-
-        console.log(
-            "Target revision:",
-            revisionArn
-        );
-
         const green = await findGreenTasks(serviceArn, revisionArn);
-        console.log(
-            "Green task count:",
-            green.tasks.length
-        );
-
-        const tls = await getTlsCredentials();
+        const tlsCredentials = await getTlsCredentials();
 
         for (const task of green.tasks) {
             const privateIp = getPrivateIp(task);
             console.log(`Validating green task ${task.taskArn} at ${privateIp}:8082`);
 
-            console.log(`Testing TCP ${privateIp}:8082`);
+            // --------------------------------------------------
+            // 1. Validate raw TCP connectivity
+            // --------------------------------------------------
             await checkTcp(privateIp);
-            console.log(`TCP connection to ${privateIp}:8082 succeeded`);
 
-            const result = await checkDriverHealth(privateIp, tls);
-            console.log(`Driver response: HTTP ${result.statusCode}`);
+            // --------------------------------------------------
+            // 2. Validate TLS + mTLS handshake
+            // --------------------------------------------------
+            await checkDriverTls(privateIp, tlsCredentials);
 
-            validateHealthResponse(result);
+            // --------------------------------------------------
+            // 3. Validate Driver health check
+            // --------------------------------------------------
+            await checkDriverHealth(privateIp, tlsCredentials);
+
+            console.log("========================================");
+            console.log("DRIVER green task health check PASSED");
+            console.log("TCP connectivity: SUCCESS");
+            console.log("TLS handshake: SUCCESS");
+            console.log("mTLS client authentication: SUCCESS");
+            console.log("========================================");
         }
-
-        console.log("All green Driver tasks passed validation");
 
         return {
             hookStatus: "SUCCEEDED"
         };
 
     } catch (error) {
-        console.error(
-            "Green Driver validation failed:",
-            error
-        );
-
+        console.error("========================================");
+        console.error("DRIVER BLUE/GREEN HOOK VALIDATION FAILED");
+        console.error("========================================");
+        console.error({
+            name: error?.name,
+            code: error?.code,
+            message: error?.message
+        });
         return {
             hookStatus: "FAILED"
         };
