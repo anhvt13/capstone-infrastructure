@@ -124,7 +124,7 @@ resource "aws_iam_role" "ecs-invoke-alb-infras-role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-invoke-aln-infras-role-policy" {
+resource "aws_iam_role_policy_attachment" "ecs-invoke-alb-infras-role-policy" {
   role       = aws_iam_role.ecs-invoke-alb-infras-role.id
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSInfrastructureRolePolicyForLoadBalancers"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECSInfrastructureRolePolicyForLoadBalancers"
 }
