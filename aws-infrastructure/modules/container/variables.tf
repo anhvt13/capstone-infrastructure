@@ -73,8 +73,8 @@ variable "capstone_vpc_id" {
   type        = string
 }
 
-variable "capstone_bff_tg_arn" {
-  description = "ARN of capstone bff target group"
+variable "capstone_bff_blue_tg_arn" {
+  description = "ARN of capstone bff BLUE target group"
   type        = string
 }
 
@@ -100,5 +100,20 @@ variable "driver_health_url" {
 
 variable "driver_health_path" {
   description = "Driver service health check path"
+  type        = string
+}
+
+variable "capstone_bff_green_tg_arn" {
+  description = "ARN of capstone bff GREEN target group"
+  type        = string
+}
+
+variable "ecs_invoke_alb_infras_role_arn" {
+  description = "ARN of ECS assume role on ALB infrastructure"
+  type        = string
+}
+
+variable "alb_production_listener_rule_arn" {
+  description = "ARN of production listener rule ALB"
   type        = string
 }

@@ -231,7 +231,7 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
   // Give the ECS service a startup grace period. ALB health failures don't force ECS to replace task
   health_check_grace_period_seconds = 60
 
-  // ECS Deployment controller by default. Configured for enabling the ECS Blue/Green strategy
+  // Enabling the ECS Blue/Green deployment strategy
   deployment_configuration {
     strategy             = "BLUE_GREEN"
     bake_time_in_minutes = 5
@@ -361,16 +361,33 @@ resource "aws_ecs_service" "ecs-capstone-bff-client" {
     enabled = true
   }
 
-  // Registered this container with defined target group
+  // Registered this container with defined target groups
   load_balancer {
-    target_group_arn = var.capstone_bff_tg_arn
+    target_group_arn = var.capstone_bff_blue_tg_arn
     container_name   = "bff-client"
     container_port   = 8080
+
+    // Tell ECS how to shift test traffic to green and permission on ALB resources management
+    advanced_configuration {
+      alternate_target_group_arn = var.capstone_bff_green_tg_arn
+      production_listener_rule   = var.alb_production_listener_rule_arn
+      role_arn                   = var.ecs_invoke_alb_infras_role_arn
+    }
   }
   enable_execute_command = true
 
   // Give the ECS service a startup grace period. ALB health failures don't force ECS to replace task
   health_check_grace_period_seconds = 60
+
+  // Enabling ECS Blue/Green deployment strategy
+  deployment_controller {
+    type = "ECS"
+  }
+
+  deployment_configuration {
+    strategy             = "BLUE_GREEN"
+    bake_time_in_minutes = 5
+  }
 }
 
 #===============================

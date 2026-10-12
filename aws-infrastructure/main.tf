@@ -113,15 +113,22 @@ module "container" {
   bff_secret_arn                             = module.secret.bff_client_secret_arn
   driver_service_secret_arn                  = module.secret.driver_service_secret_arn
   capstone_vpc_id                            = module.network.capstone_vpc_id
-  capstone_bff_tg_arn                        = module.alb.capstone_bff_tg_arn
   bff_oauth2_secret_arn                      = module.secret.bff_oauth2_secret_arn
   ecs_desired_task                           = var.ecs_desired_task
   driver_blue_green_hook_function_arn        = module.driver_blue_green_hook.driver_blue_green_hook_function_arn
   driver_blue_green_hook_ecs_assume_role_arn = module.driver_blue_green_hook.driver_blue_green_hook_ecs_assume_role_arn
   driver_health_path                         = var.driver_health_path
   driver_health_url                          = module.alb.capstone_alb_dns
+  capstone_bff_blue_tg_arn                   = module.alb.capstone_bff_blue_tg_arn
+  capstone_bff_green_tg_arn                  = module.alb.capstone_bff_green_tg_arn
+  alb_production_listener_rule_arn           = module.alb.alb_production_listener_rule_arn
+  ecs_invoke_alb_infras_role_arn             = module.alb.ecs_invoke_alb_infras_role_arn
 
   depends_on = [module.database, module.redis, module.driver_blue_green_hook]
+
+
+
+
 }
 
 # =====================
