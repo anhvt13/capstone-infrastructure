@@ -143,7 +143,9 @@ resource "aws_instance" "bastion-host" {
                               #!/bin/bash
                               dnf update -y
                               dnf install -y postgresql17
+                              dnf install -y valkey
                               EOF
+  user_data_replace_on_change = true
 
   depends_on = [
     aws_iam_role_policy_attachment.ssm,
