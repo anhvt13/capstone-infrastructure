@@ -163,13 +163,13 @@ variable "capstone_db_schema_bucket_name" {
 variable "driver_service_ecr_uri" {
   description = "Driver service image URI from ECR"
   type        = string
-  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:9f96cd215483203e9118023202a0b20233d9153b"
+  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:75985f5cc02d26a5ab19cf556deee515101d758b"
 }
 
 variable "bff_client_ecr_uri" {
   description = "BFF client image URI from ECR"
   type        = string
-  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/bff-client:4f0bf1bbc901258235fff2fa83f684cefe9f4602"
+  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/bff-client:10d1c777c9297e969dfd0b8707c29acfecf1b545"
 }
 
 variable "database_port" {
