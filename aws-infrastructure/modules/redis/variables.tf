@@ -17,3 +17,8 @@ variable "capstone_private_subnet_ids" {
   description = "IDs of the capstone private subnets"
   type        = list(string)
 }
+
+variable "bastion_host_security_group_id" {
+  description = "ID of bastion host security group"
+  type        = string
+}

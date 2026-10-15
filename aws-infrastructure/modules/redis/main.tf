@@ -19,6 +19,14 @@ resource "aws_vpc_security_group_ingress_rule" "capstone-valkey-inbound-from-pri
   to_port                      = 6379
 }
 
+resource "aws_vpc_security_group_ingress_rule" "capstone-valkey-inbound-from-bastion-sg" {
+  security_group_id            = aws_security_group.capstone-valkey-sg.id
+  referenced_security_group_id = var.bastion_host_security_group_id
+  ip_protocol                  = "tcp"
+  from_port                    = 6379
+  to_port                      = 6379
+}
+
 resource "aws_elasticache_serverless_cache" "capstone-valkey-cache" {
   name                 = "capstone-valkey-cache"
   engine               = "valkey"

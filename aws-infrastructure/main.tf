@@ -125,10 +125,6 @@ module "container" {
   ecs_invoke_alb_infras_role_arn             = module.alb.ecs_invoke_alb_infras_role_arn
 
   depends_on = [module.database, module.redis, module.driver_blue_green_hook]
-
-
-
-
 }
 
 # =====================
@@ -160,4 +156,5 @@ module "redis" {
   capstone_private_security_group_id = module.security.capstone_private_security_group_id
   capstone_vpc_id                    = module.network.capstone_vpc_id
   capstone_private_subnet_ids        = module.network.capstone_private_subnet_ids
+  bastion_host_security_group_id     = module.bastion.bastion_host_security_group_id
 }
