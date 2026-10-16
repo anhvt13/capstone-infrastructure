@@ -163,6 +163,8 @@ variable "capstone_db_schema_bucket_name" {
 variable "driver_service_ecr_uri" {
   description = "Driver service image URI from ECR"
   type        = string
+
+  # Base version with just aurora auto scaling configure, NO cache on GET list endpoint
   default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:75985f5cc02d26a5ab19cf556deee515101d758b"
 }
 
