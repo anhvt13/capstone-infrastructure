@@ -416,24 +416,6 @@ resource "aws_appautoscaling_target" "bff" {
 
 resource "aws_appautoscaling_policy" "bff-cpu-target-tracking" {
   name               = "bff-cpu-target-tracking"
-  policy_type        = "BffCpuTargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.bff.resource_id
-  scalable_dimension = aws_appautoscaling_target.bff.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.bff.service_namespace
-
-  target_tracking_scaling_policy_configuration {
-    target_value       = var.bff_cpu_target
-    scale_out_cooldown = 60
-    scale_in_cooldown  = 180
-
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
-    }
-  }
-}
-
-resource "aws_appautoscaling_policy" "alb-" {
-  name               = "bff-cpu-target-tracking"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.bff.resource_id
   scalable_dimension = aws_appautoscaling_target.bff.scalable_dimension
