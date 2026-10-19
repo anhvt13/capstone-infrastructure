@@ -434,7 +434,7 @@ resource "aws_appautoscaling_policy" "bff-cpu-target-tracking" {
 
 resource "aws_appautoscaling_policy" "alb-" {
   name               = "bff-cpu-target-tracking"
-  policy_type        = "BffCpuTargetTrackingScaling"
+  policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.bff.resource_id
   scalable_dimension = aws_appautoscaling_target.bff.scalable_dimension
   service_namespace  = aws_appautoscaling_target.bff.service_namespace
