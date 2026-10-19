@@ -163,7 +163,9 @@ variable "capstone_db_schema_bucket_name" {
 variable "driver_service_ecr_uri" {
   description = "Driver service image URI from ECR"
   type        = string
-  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:75985f5cc02d26a5ab19cf556deee515101d758b"
+
+  # Base version with just aurora auto scaling configure, NO cache on GET list endpoint
+  default = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:75985f5cc02d26a5ab19cf556deee515101d758b"
 }
 
 variable "bff_client_ecr_uri" {
@@ -194,4 +196,22 @@ variable "driver_health_path" {
   description = "Driver service health check path"
   type        = string
   default     = "/driver/health"
+}
+
+variable "bff_min_capacity" {
+  description = "Minimum number of BFF ECS tasks"
+  type        = number
+  default     = 1
+}
+
+variable "bff_max_capacity" {
+  description = "Maximum number of BFF ECS tasks"
+  type        = number
+  default     = 4
+}
+
+variable "bff_cpu_target" {
+  description = "Target average BFF CPU utilization percentage"
+  type        = number
+  default     = 60
 }
