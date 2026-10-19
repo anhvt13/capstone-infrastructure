@@ -117,3 +117,18 @@ variable "alb_production_listener_rule_arn" {
   description = "ARN of production listener rule ALB"
   type        = string
 }
+
+variable "bff_min_capacity" {
+  description = "Minimum number of BFF ECS tasks"
+  type        = number
+}
+
+variable "bff_max_capacity" {
+  description = "Maximum number of BFF ECS tasks"
+  type        = number
+}
+
+variable "bff_cpu_target" {
+  description = "Target average BFF CPU utilization percentage"
+  type        = number
+}

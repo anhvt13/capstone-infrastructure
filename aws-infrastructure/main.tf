@@ -123,8 +123,12 @@ module "container" {
   capstone_bff_green_tg_arn                  = module.alb.capstone_bff_green_tg_arn
   alb_production_listener_rule_arn           = module.alb.alb_production_listener_rule_arn
   ecs_invoke_alb_infras_role_arn             = module.alb.ecs_invoke_alb_infras_role_arn
+  bff_cpu_target                             = var.bff_cpu_target
+  bff_max_capacity                           = var.bff_max_capacity
+  bff_min_capacity                           = var.bff_min_capacity
 
   depends_on = [module.database, module.redis, module.driver_blue_green_hook]
+
 }
 
 # =====================

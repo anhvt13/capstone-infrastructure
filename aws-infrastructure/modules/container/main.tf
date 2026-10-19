@@ -347,7 +347,10 @@ resource "aws_ecs_service" "ecs-capstone-bff-client" {
   cluster         = aws_ecs_cluster.capstone-ecs-cluster.id
   task_definition = aws_ecs_task_definition.capstone-bff-client-fargate-td.arn
   desired_count   = var.ecs_desired_task
-  launch_type     = "FARGATE"
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+  launch_type = "FARGATE"
   network_configuration {
     subnets = var.capstone_private_subnet_ids
     security_groups = [
@@ -398,3 +401,34 @@ resource "aws_service_discovery_private_dns_namespace" "capstone-service-connect
   name        = "capstone.local"
   vpc         = var.capstone_vpc_id
 }
+
+
+#===============================
+# BFF service auto-scaling
+#===============================
+resource "aws_appautoscaling_target" "bff" {
+  max_capacity       = var.bff_max_capacity
+  min_capacity       = var.bff_min_capacity
+  resource_id        = "service/${aws_ecs_cluster.capstone-ecs-cluster.name}/${aws_ecs_service.ecs-capstone-bff-client.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "bff-cpu-scaling-policy" {
+  name               = "bff-cpu-target-tracking"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.bff.resource_id
+  scalable_dimension = aws_appautoscaling_target.bff.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.bff.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value       = var.bff_cpu_target
+    scale_out_cooldown = 60
+    scale_in_cooldown  = 180
+
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+  }
+}
+
