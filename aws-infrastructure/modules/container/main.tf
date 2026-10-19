@@ -414,7 +414,7 @@ resource "aws_appautoscaling_target" "bff" {
   service_namespace  = "ecs"
 }
 
-resource "aws_appautoscaling_policy" "bff-cpu-scaling-policy" {
+resource "aws_appautoscaling_policy" "bff-cpu-target-tracking" {
   name               = "bff-cpu-target-tracking"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.bff.resource_id
