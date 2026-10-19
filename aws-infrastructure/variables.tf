@@ -213,5 +213,5 @@ variable "bff_max_capacity" {
 variable "bff_cpu_target" {
   description = "Target average BFF CPU utilization percentage"
   type        = number
-  default     = 60
+  default     = 80
 }
