@@ -207,11 +207,11 @@ variable "bff_min_capacity" {
 variable "bff_max_capacity" {
   description = "Maximum number of BFF ECS tasks"
   type        = number
-  default     = 4
+  default     = 6
 }
 
 variable "bff_cpu_target" {
   description = "Target average BFF CPU utilization percentage"
   type        = number
-  default     = 80
+  default     = 60
 }
