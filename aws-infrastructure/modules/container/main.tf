@@ -124,8 +124,8 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
   family                   = "driver-service-fargate-td"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "512"  # 0.5 vCPU
-  memory                   = "1024" # 1 GiB
+  cpu                      = "1024" # 1 vCPU
+  memory                   = "2048" # 2 GB
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
@@ -261,8 +261,8 @@ resource "aws_ecs_task_definition" "capstone-bff-client-fargate-td" {
   family                   = "bff-client-fargate-td"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "512"  # 0.5 vCPU
-  memory                   = "1024" # 1 GiB
+  cpu                      = "1024" # 1 vCPU
+  memory                   = "2048" # 2 GB
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
