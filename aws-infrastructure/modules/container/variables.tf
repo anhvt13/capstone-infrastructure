@@ -132,3 +132,18 @@ variable "bff_cpu_target" {
   description = "Target average BFF CPU utilization percentage"
   type        = number
 }
+
+variable "driver_min_capacity" {
+  description = "Minimum number of Driver ECS tasks"
+  type        = number
+}
+
+variable "driver_max_capacity" {
+  description = "Maximum number of Driver ECS tasks"
+  type        = number
+}
+
+variable "driver_cpu_target" {
+  description = "Target average Driver CPU utilization percentage"
+  type        = number
+}

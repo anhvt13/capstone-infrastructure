@@ -197,11 +197,29 @@ variable "bff_min_capacity" {
 variable "bff_max_capacity" {
   description = "Maximum number of BFF ECS tasks"
   type        = number
-  default     = 6
+  default     = 10
 }
 
 variable "bff_cpu_target" {
-  description = "Target average BFF CPU utilization percentage"
+  description = "Target average CPU utilization percentage of BFF tasks"
+  type        = number
+  default     = 60
+}
+
+variable "driver_min_capacity" {
+  description = "Minimum number of Driver ECS tasks"
+  type        = number
+  default     = 1
+}
+
+variable "driver_max_capacity" {
+  description = "Maximum number of Driver ECS tasks"
+  type        = number
+  default     = 10
+}
+
+variable "driver_cpu_target" {
+  description = "Target average CPU utilization percentage of Driver tasks"
   type        = number
   default     = 60
 }

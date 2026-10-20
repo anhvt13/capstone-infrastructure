@@ -117,9 +117,11 @@ module "container" {
   bff_cpu_target                             = var.bff_cpu_target
   bff_max_capacity                           = var.bff_max_capacity
   bff_min_capacity                           = var.bff_min_capacity
+  driver_cpu_target                          = var.driver_cpu_target
+  driver_max_capacity                        = var.driver_max_capacity
+  driver_min_capacity                        = var.driver_min_capacity
 
   depends_on = [module.database, module.redis, module.driver_blue_green_hook]
-
 }
 
 # =====================
