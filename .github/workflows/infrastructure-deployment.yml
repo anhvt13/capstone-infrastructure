@@ -137,4 +137,4 @@ jobs:
         run: |
           terraform apply \
             -auto-approve \
-            -var="ecs_desired_task=${{ inputs.ecs_desired_task }}"
+            -var="ecs_desired_task=${{ inputs.ecs_desired_task || 1 }}"
