@@ -423,7 +423,36 @@ resource "aws_appautoscaling_policy" "bff-cpu-target-tracking" {
 
   target_tracking_scaling_policy_configuration {
     target_value       = var.bff_cpu_target
-    scale_out_cooldown = 60
+    scale_out_cooldown = 90
+    scale_in_cooldown  = 180
+
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+  }
+}
+
+#===============================
+# Driver service auto-scaling
+#===============================
+resource "aws_appautoscaling_target" "driver" {
+  max_capacity       = var.driver_max_capacity
+  min_capacity       = var.driver_min_capacity
+  resource_id        = "service/${aws_ecs_cluster.capstone-ecs-cluster.name}/${aws_ecs_service.ecs-capstone-driver-service.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "driver-cpu-target-tracking" {
+  name               = "driver-cpu-target-tracking"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.driver.resource_id
+  scalable_dimension = aws_appautoscaling_target.driver.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.driver.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value       = var.driver_cpu_target
+    scale_out_cooldown = 90
     scale_in_cooldown  = 180
 
     predefined_metric_specification {
