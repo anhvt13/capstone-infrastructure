@@ -452,7 +452,7 @@ resource "aws_appautoscaling_policy" "driver-cpu-target-tracking" {
 
   target_tracking_scaling_policy_configuration {
     target_value       = var.driver_cpu_target
-    scale_out_cooldown = 90
+    scale_out_cooldown = 60
     scale_in_cooldown  = 180
 
     predefined_metric_specification {
