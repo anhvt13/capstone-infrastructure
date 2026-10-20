@@ -197,7 +197,7 @@ variable "bff_min_capacity" {
 variable "bff_max_capacity" {
   description = "Maximum number of BFF ECS tasks"
   type        = number
-  default     = 10
+  default     = 100
 }
 
 variable "bff_cpu_target" {
@@ -215,7 +215,7 @@ variable "driver_min_capacity" {
 variable "driver_max_capacity" {
   description = "Maximum number of Driver ECS tasks"
   type        = number
-  default     = 10
+  default     = 100
 }
 
 variable "driver_cpu_target" {
