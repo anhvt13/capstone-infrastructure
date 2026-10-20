@@ -73,15 +73,6 @@ module "storage" {
   storage_tags                   = var.storage_tags
 }
 
-# =====================
-# Secret Manager module
-# =====================
-module "secret" {
-  source = "./modules/secret"
-
-  secret_tags = var.secret_tags
-}
-
 # ======================================
 # Driver blue green hook function module
 # =====================================
@@ -90,7 +81,7 @@ module "driver_blue_green_hook" {
 
   capstone_private_subnet_ids                    = module.network.capstone_private_subnet_ids
   capstone_driver_blue_green_hook_function_sg_id = module.security.capstone_driver_blue_green_hook_function_sg_id
-  driver_bg_validator_secret_arn                 = module.secret.driver_bg_validator_secret_arn
+  driver_bg_validator_secret_arn                 = data.terraform_remote_state.secrets.outputs.driver_bg_validator_secret_arn
 }
 
 # =====================
@@ -110,10 +101,10 @@ module "container" {
   database_name                              = var.database_name
   database_port                              = var.database_port
   rds_secret_arn                             = module.database.rds_secret_arn
-  bff_secret_arn                             = module.secret.bff_client_secret_arn
-  driver_service_secret_arn                  = module.secret.driver_service_secret_arn
+  bff_secret_arn                             = data.terraform_remote_state.secrets.outputs.bff_client_secret_arn
+  driver_service_secret_arn                  = data.terraform_remote_state.secrets.outputs.driver_service_secret_arn
   capstone_vpc_id                            = module.network.capstone_vpc_id
-  bff_oauth2_secret_arn                      = module.secret.bff_oauth2_secret_arn
+  bff_oauth2_secret_arn                      = data.terraform_remote_state.secrets.outputs.bff_oauth2_secret_arn
   ecs_desired_task                           = var.ecs_desired_task
   driver_blue_green_hook_function_arn        = module.driver_blue_green_hook.driver_blue_green_hook_function_arn
   driver_blue_green_hook_ecs_assume_role_arn = module.driver_blue_green_hook.driver_blue_green_hook_ecs_assume_role_arn

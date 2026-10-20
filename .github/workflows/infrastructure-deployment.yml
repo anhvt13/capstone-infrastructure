@@ -1,3 +1,4 @@
+# Upstream dependency: "Secrets Module Infrastructure Deployment" workflow was executed successful
 name: Capstone Infrastructure Deployment
 
 on:
@@ -18,10 +19,10 @@ on:
       - main
     inputs:
       ecs_desired_task:
-        description: "Number of ECS tasks to run"
+        description: "Number of ECS desired task running"
         required: true
         type: number
-        default: 0
+        default: 1
 
 permissions:
   id-token: write
@@ -136,5 +137,4 @@ jobs:
         run: |
           terraform apply \
             -auto-approve \
-            -var="ecs_desired_task=${{ inputs.ecs_desired_task || 0 }}"
-          
+            -var="ecs_desired_task=${{ inputs.ecs_desired_task }}"
