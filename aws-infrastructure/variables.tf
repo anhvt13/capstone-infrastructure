@@ -54,16 +54,6 @@ variable "storage_tags" {
   }
 }
 
-variable "secret_tags" {
-  type        = map(string)
-  description = "Common tags applied to all secret resources"
-  default = {
-    Layer     = "secret"
-    Project   = "capstone"
-    ManagedBy = "terraform"
-  }
-}
-
 variable "container_tags" {
   type        = map(string)
   description = "Common tags applied to all container resources"
@@ -189,7 +179,7 @@ variable "database_name" {
 variable "ecs_desired_task" {
   description = "Number of ECS desired task to run"
   type        = number
-  default     = 0
+  default     = 1
 }
 
 variable "driver_health_path" {
