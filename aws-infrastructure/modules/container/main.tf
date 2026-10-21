@@ -185,14 +185,16 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
           valueFrom = "${var.rds_secret_arn}:password::"
         }
       ]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = var.ecs_capstone_app_log_group
-          "awslogs-region"        = var.primary_aws_region
-          "awslogs-stream-prefix" = "ecs"
-        }
-      }
+
+      # logConfiguration = {
+      #   logDriver = "awslogs"
+      #   options = {
+      #     "awslogs-group"         = var.ecs_capstone_app_log_group
+      #     "awslogs-region"        = var.primary_aws_region
+      #     "awslogs-stream-prefix" = "ecs"
+      #   }
+      # }
+
     }
   ])
 }
@@ -324,14 +326,16 @@ resource "aws_ecs_task_definition" "capstone-bff-client-fargate-td" {
           valueFrom = "${var.bff_oauth2_secret_arn}:driver_m2m_client_secret::"
         }
       ]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = var.ecs_capstone_app_log_group
-          "awslogs-region"        = var.primary_aws_region
-          "awslogs-stream-prefix" = "ecs"
-        }
-      }
+
+      # logConfiguration = {
+      #   logDriver = "awslogs"
+      #   options = {
+      #     "awslogs-group"         = var.ecs_capstone_app_log_group
+      #     "awslogs-region"        = var.primary_aws_region
+      #     "awslogs-stream-prefix" = "ecs"
+      #   }
+      # }
+
     }
   ])
 }
