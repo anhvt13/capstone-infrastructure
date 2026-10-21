@@ -263,8 +263,8 @@ resource "aws_ecs_task_definition" "capstone-bff-client-fargate-td" {
   family                   = "bff-client-fargate-td"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "1024" # 1 vCPU
-  memory                   = "2048" # 2 GB
+  cpu                      = "2048" # 2 vCPU
+  memory                   = "4096" # 4 GB
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
