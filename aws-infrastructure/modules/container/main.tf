@@ -186,14 +186,14 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
         }
       ]
 
-      # logConfiguration = {
-      #   logDriver = "awslogs"
-      #   options = {
-      #     "awslogs-group"         = var.ecs_capstone_app_log_group
-      #     "awslogs-region"        = var.primary_aws_region
-      #     "awslogs-stream-prefix" = "ecs"
-      #   }
-      # }
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = var.ecs_capstone_app_log_group
+          "awslogs-region"        = var.primary_aws_region
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
 
     }
   ])
@@ -327,14 +327,14 @@ resource "aws_ecs_task_definition" "capstone-bff-client-fargate-td" {
         }
       ]
 
-      # logConfiguration = {
-      #   logDriver = "awslogs"
-      #   options = {
-      #     "awslogs-group"         = var.ecs_capstone_app_log_group
-      #     "awslogs-region"        = var.primary_aws_region
-      #     "awslogs-stream-prefix" = "ecs"
-      #   }
-      # }
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = var.ecs_capstone_app_log_group
+          "awslogs-region"        = var.primary_aws_region
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
 
     }
   ])
