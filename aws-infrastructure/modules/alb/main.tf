@@ -14,9 +14,9 @@ resource "aws_lb_target_group" "capstone-bff-blue-tg" {
     path                = "/actuator/health" # Health check landing endpoint on BFF-client
     port                = "traffic-port"     # Inherits port 8080 from target group configure
     healthy_threshold   = 2
-    unhealthy_threshold = 2
+    unhealthy_threshold = 5
     timeout             = 5
-    interval            = 15
+    interval            = 30
   }
 
   tags = merge(
@@ -40,9 +40,9 @@ resource "aws_lb_target_group" "capstone-bff-green-tg" {
     path                = "/actuator/health" # Health check landing endpoint on BFF-client
     port                = "traffic-port"     # Inherits port 8080 from target group configure
     healthy_threshold   = 2
-    unhealthy_threshold = 2
+    unhealthy_threshold = 5
     timeout             = 5
-    interval            = 15
+    interval            = 30
   }
 
   tags = merge(
