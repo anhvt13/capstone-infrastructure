@@ -155,3 +155,14 @@ module "redis" {
   capstone_private_subnet_ids        = module.network.capstone_private_subnet_ids
   bastion_host_security_group_id     = module.bastion.bastion_host_security_group_id
 }
+
+# =====================
+# Cloudfront module
+# =====================
+module "cloudfront" {
+  source = "./modules/cdn"
+
+  capstone_alb_dns = module.alb.capstone_alb_dns
+  target_origin_id = var.target_origin_id
+  cdn_tags         = var.cdn_tags
+}

@@ -9,7 +9,7 @@ output "capstone_bff_green_tg_arn" {
 }
 
 output "capstone_alb_dns" {
-  description = "Capstone application load balancer dns"
+  description = "Capstone application load balancer DNS"
   value       = aws_lb.capstone-alb.dns_name
 }
 
