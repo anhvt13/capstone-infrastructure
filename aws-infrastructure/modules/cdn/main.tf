@@ -85,6 +85,23 @@ resource "aws_cloudfront_distribution" "capstone-cloudfront" {
     compress = true
   }
 
+  ordered_cache_behavior {
+    path_pattern           = "/driver/*"
+    target_origin_id       = var.target_origin_id
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = ["GET", "HEAD", "OPTIONS", ]
+    cached_methods  = ["GET", "HEAD"]
+
+    # AWS-managed UseOriginCacheControlHeaders-QueryStrings policy
+    cache_policy_id = "4cc15a8a-d715-48a4-82b8-cc0b614638fe"
+
+    # AllViewerAndCloudFrontHeaders-2022-06 policy
+    origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc"
+
+    compress = true
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "none"
