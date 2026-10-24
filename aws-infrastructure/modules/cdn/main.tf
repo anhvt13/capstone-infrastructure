@@ -37,8 +37,9 @@ resource "aws_cloudfront_distribution" "capstone-cloudfront" {
     allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods  = ["GET", "HEAD", "OPTIONS"]
 
-    # AWS-managed CachingOptimized policy
-    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    # AWS-managed UseOriginCacheControlHeaders-QueryStrings policy
+    # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html?utm_source=chatgpt.com#managed-cache-policy-origin-cache-headers-query-strings
+    cache_policy_id = "4cc15a8a-d715-48a4-82b8-cc0b614638fe"
 
     # AllViewerAndCloudFrontHeaders-2022-06 policy
     origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc"
