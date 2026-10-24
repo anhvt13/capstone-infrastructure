@@ -10,7 +10,7 @@ resource "aws_cloudfront_distribution" "capstone-cloudfront" {
   # Existing internet-facing ALB
   origin {
     domain_name = var.capstone_alb_dns
-    origin_id   = "capstone-alb-origin"
+    origin_id   = var.target_origin_id
     custom_origin_config {
       http_port  = 80
       https_port = 443
@@ -25,10 +25,11 @@ resource "aws_cloudfront_distribution" "capstone-cloudfront" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
-
-  # Caching behavior
+  #===============================
+  # Default cache behavior
+  #===============================
   default_cache_behavior {
-    target_origin_id = "capstone-alb-origin"
+    target_origin_id = var.target_origin_id
 
     # Cloudfront redirect any HTTP requests from viewer to HTTPS
     viewer_protocol_policy = "redirect-to-https"
@@ -38,6 +39,44 @@ resource "aws_cloudfront_distribution" "capstone-cloudfront" {
 
     # AWS-managed CachingOptimized policy
     cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+
+    # AllViewerAndCloudFrontHeaders-2022-06 policy
+    origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc"
+
+    compress = true
+  }
+
+  #====================================
+  # BFF Health Check URL - Never Cache
+  # ====================================
+  ordered_cache_behavior {
+    path_pattern           = "/actuator/health"
+    target_origin_id       = var.target_origin_id
+    viewer_protocol_policy = "redirect-to-https"
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+
+    # AWS-managed CachingDisabled policy
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+
+    # AllViewerAndCloudFrontHeaders-2022-06 policy
+    origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc"
+
+    compress = true
+  }
+
+  #==============================================
+  # Driver Health Check URL - Never Cache
+  # ============================================
+  ordered_cache_behavior {
+    path_pattern           = "/driver/health"
+    target_origin_id       = var.target_origin_id
+    viewer_protocol_policy = "redirect-to-https"
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+
+    # AWS-managed CachingDisabled policy
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
 
     # AllViewerAndCloudFrontHeaders-2022-06 policy
     origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc"

@@ -233,3 +233,9 @@ variable "driver_cpu_target" {
   type        = number
   default     = 60
 }
+
+variable "target_origin_id" {
+  description = "ALB target origin ID"
+  type        = string
+  default     = "capstone-alb-origin"
+}

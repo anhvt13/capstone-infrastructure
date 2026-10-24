@@ -163,5 +163,6 @@ module "cloudfront" {
   source = "./modules/cdn"
 
   capstone_alb_dns = module.alb.capstone_alb_dns
+  target_origin_id = var.target_origin_id
   cdn_tags         = var.cdn_tags
 }
