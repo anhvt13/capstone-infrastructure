@@ -163,15 +163,13 @@ variable "capstone_db_schema_bucket_name" {
 variable "driver_service_ecr_uri" {
   description = "Driver service image URI from ECR"
   type        = string
-
-  # Base version with just aurora auto scaling configure, NO cache on GET list endpoint
-  default = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:cd7dc2bd77f2cee56356d44cb88fb87eb2146ada"
+  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:f677245a132c4773681106600fd4dfd38b003ad7"
 }
 
 variable "bff_client_ecr_uri" {
   description = "BFF client image URI from ECR"
   type        = string
-  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/bff-client:e5989857b0d8834006f91d2946c79f8989146e6a"
+  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/bff-client:bf28d4f28fb50857ce7b8c96c50a286197a3e546"
 }
 
 variable "database_port" {
