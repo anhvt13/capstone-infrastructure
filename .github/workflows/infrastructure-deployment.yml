@@ -42,23 +42,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::249899229305:role/github-actions-infrastructure-deployment-role
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Install Lambda dependencies
+      - name: Install Blue/Green Lambda Hook Dependencies
         working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
         run: |
           npm ci
 
-      - name: Package Lambda Function
+      - name: Package Blue/Green Lambda Hook Function
         working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
         run: |
           rm -f driver-blue-green-hook-function.zip
 
           zip -r driver-blue-green-hook-function.zip \
+            index.mjs \
+            package.json \
+            package-lock.json \
+            node_modules
+
+      - name: Install Cognito JWT Authenticate Dependencies
+        working-directory: aws-infrastructure/modules/function/edge-authenticate-function
+        run: |
+          npm ci
+
+      - name: Package Cognito JWT Authenticate Lambda Edge Function
+        working-directory: aws-infrastructure/modules/function/edge-authenticate-function
+        run: |
+          rm -f cognito-jwt-edge-auth-function.zip
+          
+          zip -r cognito-jwt-edge-auth-function.zip \
             index.mjs \
             package.json \
             package-lock.json \
