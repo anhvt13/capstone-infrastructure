@@ -1,4 +1,4 @@
-const { CognitoJwtVerifier } = require("aws-jwt-verify");
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 // Configure the verifier outside the handler so the JWKS is cached across warm invocations
 const verifier = CognitoJwtVerifier.create({
