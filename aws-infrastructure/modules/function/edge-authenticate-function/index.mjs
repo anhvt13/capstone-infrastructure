@@ -38,6 +38,7 @@ export const handler = async (event) => {
 
 // Helper function to return a structured 401 response directly from the Edge
 function getUnauthorizedResponse(message) {
+  console.error(message);
   return {
     status: "401",
     statusDescription: "Unauthorized",
