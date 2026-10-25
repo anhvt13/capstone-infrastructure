@@ -12,3 +12,8 @@ variable "target_origin_id" {
   description = "ALB target origin ID"
   type        = string
 }
+
+variable "cognito_jwt_edge_auth_function_qualified_arn" {
+  description = "Specific published version ARN of jwt authenticate lambda edge"
+  type        = string
+}

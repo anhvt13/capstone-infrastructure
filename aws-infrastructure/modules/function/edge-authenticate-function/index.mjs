@@ -2,9 +2,9 @@ const { CognitoJwtVerifier } = require("aws-jwt-verify");
 
 // Configure the verifier outside the handler so the JWKS is cached across warm invocations
 const verifier = CognitoJwtVerifier.create({
-  userPoolId: process.env.USER_POOL_ID,
-  tokenUse: process.env.TOKEN_USE,
-  clientId: process.env.CLIENT_ID
+    userPoolId: "ap-southeast-1_hLZj5IXWc",
+    tokenUse: "access",
+    clientId: "5rem71h307toj04fc39tjn1r52",
 });
 
 exports.handler = async (event) => {
