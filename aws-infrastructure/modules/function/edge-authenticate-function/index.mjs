@@ -7,7 +7,7 @@ const verifier = CognitoJwtVerifier.create({
     clientId: "5rem71h307toj04fc39tjn1r52",
 });
 
-export const handler = async (event) =>
+export const handler = async (event) => {
   const request = event.Records[0].cf.request;
   const headers = request.headers;
 
