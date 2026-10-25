@@ -45,6 +45,13 @@ resource "aws_cloudfront_distribution" "capstone-cloudfront" {
     origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc"
 
     compress = true
+
+    # Lambda associated at CloudFront edge location for JWT authenticating
+    lambda_function_association {
+      event_type   = "viewer-request"
+      lambda_arn   = var.cognito_jwt_edge_auth_function_qualified_arn
+      include_body = false
+    }
   }
 
   #====================================
@@ -100,6 +107,13 @@ resource "aws_cloudfront_distribution" "capstone-cloudfront" {
     origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc"
 
     compress = true
+
+    # Lambda associated at CloudFront edge location for JWT authenticating
+    lambda_function_association {
+      event_type   = "viewer-request"
+      lambda_arn   = var.cognito_jwt_edge_auth_function_qualified_arn
+      include_body = false
+    }
   }
 
   restrictions {

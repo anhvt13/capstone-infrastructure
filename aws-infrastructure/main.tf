@@ -162,7 +162,19 @@ module "redis" {
 module "cloudfront" {
   source = "./modules/cdn"
 
-  capstone_alb_dns = module.alb.capstone_alb_dns
-  target_origin_id = var.target_origin_id
-  cdn_tags         = var.cdn_tags
+  capstone_alb_dns                             = module.alb.capstone_alb_dns
+  target_origin_id                             = var.target_origin_id
+  cdn_tags                                     = var.cdn_tags
+  cognito_jwt_edge_auth_function_qualified_arn = module.edge_authenticate_function.cognito_jwt_edge_auth_function_qualified_arn
+}
+
+# ====================================================
+# Cognito JWT token authenticate edge function module
+# =====================================================
+module "edge_authenticate_function" {
+  source = "./modules/function/edge-authenticate-function"
+
+  providers = {
+    aws.us_east_1 = aws.us_east_1
+  }
 }
