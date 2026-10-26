@@ -333,4 +333,42 @@ resource "aws_vpc_endpoint" "ecs" {
   )
 }
 
+# =============================================
+# AWS System Manager (SSM) Interface Endpoint
+# =============================================
+locals {
+  ssm_interface_endpoints = {
+    ssm = {
+      service = "ssm"
+    }
+    ssmmessages = {
+      service = "ssmmessages"
+    }
+    ec2messages = {
+      service = "ec2messages"
+    }
+  }
+}
+
+resource "aws_vpc_endpoint" "ssm" {
+  for_each          = local.ssm_interface_endpoints
+  vpc_id            = aws_vpc.capstone-vpc.id
+  service_name      = "com.amazonaws.${var.aws_region}.${each.value.service}"
+  vpc_endpoint_type = "Interface"
+  subnet_ids = [
+    aws_subnet.capstone-private-subnet-1.id,
+    aws_subnet.capstone-private-subnet-2.id
+  ]
+  security_group_ids = [
+    var.capstone_vpc_endpoint_sg_id
+  ]
+  private_dns_enabled = true
+
+  tags = merge(
+    {
+      Name = "capstone-${each.key}-interface-endpoint"
+    },
+    var.network_tags
+  )
+}
 
