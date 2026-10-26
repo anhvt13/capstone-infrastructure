@@ -313,13 +313,17 @@ resource "aws_security_group" "capstone-vpc-endpoint-sg" {
 resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-rule" {
   security_group_id            = aws_security_group.capstone-vpc-endpoint-sg.id
   referenced_security_group_id = aws_security_group.capstone-private-sg.id
-  ip_protocol                  = "-1"
+  ip_protocol                  = "tcp"
+  from_port                    = 443
+  to_port                      = 443
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-bastion-sg-rule" {
   security_group_id            = aws_security_group.capstone-vpc-endpoint-sg.id
   referenced_security_group_id = var.bastion_host_security_group_id
-  ip_protocol                  = "-1"
+  ip_protocol                  = "tcp"
+  from_port                    = 443
+  to_port                      = 443
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-driver-bg-hook-function-sg-rule" {
@@ -333,5 +337,7 @@ resource "aws_vpc_security_group_ingress_rule" "vpc-endpoint-sg-inbound-driver-b
 resource "aws_vpc_security_group_egress_rule" "vpc-endpoint-sg-outbound-rule" {
   security_group_id = aws_security_group.capstone-vpc-endpoint-sg.id
   cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1"
+  ip_protocol       = "tcp"
+  from_port         = 443
+  to_port           = 443
 }
