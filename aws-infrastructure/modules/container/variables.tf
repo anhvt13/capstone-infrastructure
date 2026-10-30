@@ -147,3 +147,8 @@ variable "driver_cpu_target" {
   description = "Target average Driver CPU utilization percentage"
   type        = number
 }
+
+variable "capstone_rds_proxy_endpoint" {
+  description = "Capstone RDS proxy endpoint"
+  type        = string
+}

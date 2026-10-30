@@ -2,7 +2,7 @@
 # =====================
 # DB subnet groups
 # =====================
-resource "aws_db_subnet_group" "aurora" {
+resource "aws_db_subnet_group" "capstone-aurora-subnet-group" {
   name       = "capstone-aurora-subnet-group"
   subnet_ids = var.capstone_db_subnet_ids
 
@@ -17,13 +17,13 @@ resource "aws_db_subnet_group" "aurora" {
 # =====================
 # Aurora cluster
 # =====================
-resource "aws_rds_cluster" "aurora" {
+resource "aws_rds_cluster" "capstone-aurora-cluster" {
   cluster_identifier          = "capstone-aurora-cluster"
   engine                      = "aurora-postgresql"
   database_name               = var.capstone_database_name
   master_username             = var.capstone_master_username
   manage_master_user_password = true
-  db_subnet_group_name        = aws_db_subnet_group.aurora.name
+  db_subnet_group_name        = aws_db_subnet_group.capstone-aurora-subnet-group.name
   vpc_security_group_ids      = [var.capstone_db_security_group_id]
   skip_final_snapshot         = true
   serverlessv2_scaling_configuration {
@@ -43,11 +43,11 @@ resource "aws_rds_cluster" "aurora" {
 # =====================
 # Aurora instance
 # =====================
-resource "aws_rds_cluster_instance" "aurora" {
+resource "aws_rds_cluster_instance" "capstone-aurora-instance" {
   identifier          = "capstone-aurora-instance"
-  cluster_identifier  = aws_rds_cluster.aurora.id
+  cluster_identifier  = aws_rds_cluster.capstone-aurora-cluster.id
   instance_class      = "db.serverless"
-  engine              = aws_rds_cluster.aurora.engine
+  engine              = aws_rds_cluster.capstone-aurora-cluster.engine
   publicly_accessible = false
 
   tags = merge(

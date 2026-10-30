@@ -120,8 +120,9 @@ module "container" {
   driver_cpu_target                          = var.driver_cpu_target
   driver_max_capacity                        = var.driver_max_capacity
   driver_min_capacity                        = var.driver_min_capacity
+  capstone_rds_proxy_endpoint                = module.db-proxy.capstone_rds_proxy_endpoint
 
-  depends_on = [module.database, module.redis, module.driver_blue_green_hook]
+  depends_on = [module.database, module.redis, module.driver_blue_green_hook, module.db-proxy]
 }
 
 # =====================
@@ -177,4 +178,17 @@ module "edge_authenticate_function" {
   providers = {
     aws.us_east_1 = aws.us_east_1
   }
+}
+
+# ====================================================
+# RDS Proxy module
+# =====================================================
+module "db-proxy" {
+  source = "./modules/db-proxy"
+
+  rds_secret_arn                       = module.database.rds_secret_arn
+  database_tags                        = var.database_tags
+  capstone_db_subnet_ids               = module.network.capstone_db_subnet_ids
+  capstone_rds_proxy_security_group_id = module.security.capstone_rds_proxy_security_group_id
+  capstone_aurora_cluster_identifier   = module.database.capstone_aurora_cluster_identifier
 }

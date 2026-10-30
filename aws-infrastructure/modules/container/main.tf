@@ -148,7 +148,7 @@ resource "aws_ecs_task_definition" "capstone-driver-service-fargate-td" {
       environment = [
         {
           name  = "DB_URL"
-          value = "jdbc:postgresql://${var.capstone_aurora_cluster_ep}:${var.database_port}/${var.database_name}?sslmode=require"
+          value = "jdbc:postgresql://${var.capstone_rds_proxy_endpoint}:${var.database_port}/${var.database_name}?sslmode=require"
         },
         {
           name  = "SPRING_PROFILES_ACTIVE"
