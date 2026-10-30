@@ -38,11 +38,6 @@ variable "driver_service_secret_arn" {
   type        = string
 }
 
-variable "capstone_aurora_cluster_ep" {
-  description = "Capstone aurora cluster endpoint"
-  type        = string
-}
-
 variable "database_port" {
   description = "Database port number"
   type        = number

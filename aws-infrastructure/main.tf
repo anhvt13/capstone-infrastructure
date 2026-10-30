@@ -97,7 +97,6 @@ module "container" {
   capstone_private_subnet_ids                = module.network.capstone_private_subnet_ids
   ecs_capstone_app_log_group                 = module.monitor.ecs_capstone_app_log_group
   primary_aws_region                         = var.primary_aws_region
-  capstone_aurora_cluster_ep                 = module.database.capstone_aurora_cluster_ep
   database_name                              = var.database_name
   database_port                              = var.database_port
   rds_secret_arn                             = module.database.rds_secret_arn
@@ -191,4 +190,6 @@ module "db-proxy" {
   capstone_db_subnet_ids               = module.network.capstone_db_subnet_ids
   capstone_rds_proxy_security_group_id = module.security.capstone_rds_proxy_security_group_id
   capstone_aurora_cluster_identifier   = module.database.capstone_aurora_cluster_identifier
+
+  depends_on = [module.database]
 }
