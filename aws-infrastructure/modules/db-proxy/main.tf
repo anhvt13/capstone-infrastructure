@@ -47,7 +47,7 @@ resource "aws_iam_role_policy_attachment" "rds-proxy-role-secret-access-policy-a
 resource "aws_db_proxy" "capstone_rds_proxy" {
   name                = "capstone-rds-proxy"
   engine_family       = "POSTGRESQL"
-  idle_client_timeout = 1800
+  idle_client_timeout = 600
   require_tls         = true
   debug_logging       = false
   role_arn            = aws_iam_role.rds-proxy-role.arn
@@ -79,7 +79,7 @@ resource "aws_db_proxy" "capstone_rds_proxy" {
 resource "aws_db_proxy_default_target_group" "capstone_proxy_target_group" {
   db_proxy_name = aws_db_proxy.capstone_rds_proxy.name
   connection_pool_config {
-    connection_borrow_timeout    = 10
+    connection_borrow_timeout    = 30
     max_connections_percent      = 80
     max_idle_connections_percent = 40
   }
