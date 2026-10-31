@@ -79,7 +79,7 @@ resource "aws_db_proxy" "capstone_rds_proxy" {
 resource "aws_db_proxy_default_target_group" "capstone_proxy_target_group" {
   db_proxy_name = aws_db_proxy.capstone_rds_proxy.name
   connection_pool_config {
-    connection_borrow_timeout    = 120
+    connection_borrow_timeout    = 10
     max_connections_percent      = 80
     max_idle_connections_percent = 40
   }
