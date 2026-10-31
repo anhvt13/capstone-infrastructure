@@ -1,4 +1,4 @@
-# Upstream dependency: "Secrets Module Infrastructure Deployment" workflow was executed successful
+# Upstream dependency: "Secrets Module Infrastructure Deployment" and "Bootstrap Secret" workflows were executed successfully
 name: Capstone Infrastructure Deployment
 
 on:

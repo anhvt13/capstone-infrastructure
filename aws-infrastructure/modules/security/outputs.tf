@@ -23,3 +23,8 @@ output "capstone_driver_blue_green_hook_function_sg_id" {
   value       = aws_security_group.capstone-driver-blue-green-hook-function-sg.id
 }
 
+output "capstone_rds_proxy_security_group_id" {
+  description = "Id of rds proxy security group"
+  value       = aws_security_group.capstone-rds-proxy-sg.id
+}
+
