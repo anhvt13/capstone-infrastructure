@@ -71,7 +71,7 @@ resource "aws_rds_cluster_instance" "replica-instance" {
   availability_zone   = "ap-southeast-1b"
 
   # Higher numbers mean lower priority. If the writer fails, AWS prefers lower tiers (1) to become the new primary.
-  promotion_tier      = 1
+  promotion_tier = 1
 
   tags = merge(
     {
