@@ -208,6 +208,10 @@ resource "aws_ecs_service" "ecs-capstone-driver-service" {
   task_definition = aws_ecs_task_definition.capstone-driver-service-fargate-td.arn
   desired_count   = var.ecs_desired_task
   launch_type     = "FARGATE"
+
+  # Enable automatic Availability Zone rebalancing
+  availability_zone_rebalancing = "ENABLED"
+
   network_configuration {
     subnets = var.capstone_private_subnet_ids
     security_groups = [
@@ -355,6 +359,10 @@ resource "aws_ecs_service" "ecs-capstone-bff-client" {
     ignore_changes = [desired_count]
   }
   launch_type = "FARGATE"
+
+  # Enable automatic Availability Zone rebalancing
+  availability_zone_rebalancing = "ENABLED"
+
   network_configuration {
     subnets = var.capstone_private_subnet_ids
     security_groups = [
