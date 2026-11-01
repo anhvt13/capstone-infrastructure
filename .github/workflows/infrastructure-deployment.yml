@@ -109,10 +109,11 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
         # HashiCorp support the saved plan (terraform plan -out=...) can be passed to terraform apply
-        run: terraform plan \
-          -var="primary_aws_region=${{ env.PRIMARY_AWS_REGION }}" \
-          -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}" \
-          -out=tfplan
+        run: |
+          terraform plan \
+            -var="primary_aws_region=${{ env.PRIMARY_AWS_REGION }}" \
+            -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}" \
+            -out=tfplan
 
   terraform-apply:
     name: Terraform Apply
