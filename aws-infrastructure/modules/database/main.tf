@@ -41,14 +41,37 @@ resource "aws_rds_cluster" "capstone-aurora-cluster" {
 }
 
 # =====================
-# Aurora instance
+# Primary instance
 # =====================
-resource "aws_rds_cluster_instance" "capstone-aurora-instance" {
+resource "aws_rds_cluster_instance" "primary-instance" {
   identifier          = "capstone-aurora-instance"
   cluster_identifier  = aws_rds_cluster.capstone-aurora-cluster.id
   instance_class      = "db.serverless"
   engine              = aws_rds_cluster.capstone-aurora-cluster.engine
   publicly_accessible = false
+  availability_zone   = "ap-southeast-1a"
+
+  tags = merge(
+    {
+      Name = "capstone-aurora-instance"
+    },
+    var.database_tags
+  )
+}
+
+# =====================
+# Replica instance
+# =====================
+resource "aws_rds_cluster_instance" "replica-instance" {
+  identifier          = "capstone-aurora-instance"
+  cluster_identifier  = aws_rds_cluster.capstone-aurora-cluster.id
+  instance_class      = "db.serverless"
+  engine              = aws_rds_cluster.capstone-aurora-cluster.engine
+  publicly_accessible = false
+  availability_zone   = "ap-southeast-1b"
+
+  # Higher numbers mean lower priority. If the writer fails, AWS prefers lower tiers (1) to become the new primary.
+  promotion_tier = 1
 
   tags = merge(
     {
