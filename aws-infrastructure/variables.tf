@@ -1,6 +1,7 @@
 variable "primary_aws_region" {
   description = "AWS primary region"
   type        = string
+  default     = "ap-southeast-1"
 }
 
 variable "network_tags" {
@@ -186,6 +187,7 @@ variable "database_name" {
 variable "ecs_desired_task" {
   description = "Number of ECS desired task to run"
   type        = number
+  default     = 1
 }
 
 variable "driver_health_path" {
