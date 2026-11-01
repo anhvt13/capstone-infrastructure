@@ -38,7 +38,8 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: ap-southeast-1
+  PRIMARY_AWS_REGION: ${{ inputs.primary_aws_region || 'ap-southeast-1'}}
+  ECS_DESIRED_TASK: ${{ inputs.ecs_desired_task || 1 }}
   TF_WORKING_DIR: aws-infrastructure
 
 # Infrastructure Deployment Jobs
@@ -55,7 +56,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::249899229305:role/github-actions-infrastructure-deployment-role
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ env.PRIMARY_AWS_REGION }}
 
       - name: Install Blue/Green Lambda Hook Dependencies
         working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
@@ -108,7 +109,11 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
         # HashiCorp support the saved plan (terraform plan -out=...) can be passed to terraform apply
-        run: terraform plan -out=tfplan
+        run: |
+          terraform plan \
+            -var="primary_aws_region=${{ env.PRIMARY_AWS_REGION }}" \
+            -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}" \
+            -out=tfplan
 
   terraform-apply:
     name: Terraform Apply
@@ -128,7 +133,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::249899229305:role/github-actions-infrastructure-deployment-role
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ env.PRIMARY_AWS_REGION }}
 
       - name: Install Blue/Green Lambda Hook Dependencies
         working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
@@ -177,6 +182,6 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform apply \
-            -auto-approve \
-            -var="ecs_desired_task=${{ inputs.ecs_desired_task}}" \
-            -var="primary_aws_region=${{ inputs.primary_aws_region}}"
+            -auto-approve \ 
+            -var="primary_aws_region=${{ env.PRIMARY_AWS_REGION }}" \
+            -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}"
