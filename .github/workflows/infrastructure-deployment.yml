@@ -38,8 +38,8 @@ permissions:
   contents: read
 
 env:
-  PRIMARY_AWS_REGION: ${{ inputs.primary_aws_region }}
-  ECS_DESIRED_TASK: ${{ inputs.ecs_desired_task }}
+  PRIMARY_AWS_REGION: ${{ inputs.primary_aws_region || 'ap-southeast-1'}}
+  ECS_DESIRED_TASK: ${{ inputs.ecs_desired_task || 1 }}
   TF_WORKING_DIR: aws-infrastructure
 
 # Infrastructure Deployment Jobs
@@ -110,8 +110,8 @@ jobs:
 
         # HashiCorp support the saved plan (terraform plan -out=...) can be passed to terraform apply
         run: terraform plan \
-          -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}" \
           -var="primary_aws_region=${{ env.PRIMARY_AWS_REGION }}" \
+          -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}" \
           -out=tfplan
 
   terraform-apply:
