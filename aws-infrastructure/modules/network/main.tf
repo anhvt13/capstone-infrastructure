@@ -1,108 +1,8 @@
-
-# ===============================
-# VPC
-# ===============================
-resource "aws_vpc" "capstone-vpc" {
-  cidr_block           = var.capstone_vpc_cidr
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-
-  tags = merge(
-    var.network_tags,
-    {
-      Name = "capstone-vpc"
-    }
-  )
-}
-
-# ===============================
-# Subnet
-# ===============================
-resource "aws_subnet" "capstone-public-subnet-1" {
-  vpc_id                  = aws_vpc.capstone-vpc.id
-  cidr_block              = var.capstone_public_subnet_1_cidr
-  availability_zone       = var.availability_zones[0]
-  map_public_ip_on_launch = true
-
-  tags = merge(
-    {
-      Name = "public-subnet-1"
-    },
-    var.network_tags
-  )
-}
-
-resource "aws_subnet" "capstone-public-subnet-2" {
-  vpc_id                  = aws_vpc.capstone-vpc.id
-  cidr_block              = var.capstone_public_subnet_2_cidr
-  availability_zone       = var.availability_zones[1]
-  map_public_ip_on_launch = true
-
-  tags = merge(
-    {
-      Name = "public-subnet-2"
-    },
-    var.network_tags
-  )
-}
-
-resource "aws_subnet" "capstone-private-subnet-1" {
-  vpc_id            = aws_vpc.capstone-vpc.id
-  cidr_block        = var.capstone_private_subnet_1_cidr
-  availability_zone = var.availability_zones[0]
-
-  tags = merge(
-    {
-      Name = "private-subnet-1"
-    },
-    var.network_tags
-  )
-}
-
-resource "aws_subnet" "capstone-private-subnet-2" {
-  vpc_id            = aws_vpc.capstone-vpc.id
-  cidr_block        = var.capstone_private_subnet_2_cidr
-  availability_zone = var.availability_zones[1]
-
-  tags = merge(
-    {
-      Name = "private-subnet-2"
-    },
-    var.network_tags
-  )
-}
-
-resource "aws_subnet" "capstone-db-subnet-1" {
-  vpc_id            = aws_vpc.capstone-vpc.id
-  cidr_block        = var.capstone_db_subnet_1_cidr
-  availability_zone = var.availability_zones[0]
-
-  tags = merge(
-    {
-      Name = "db-subnet-1"
-    },
-    var.network_tags
-  )
-}
-
-resource "aws_subnet" "capstone-db_subnet_2" {
-  vpc_id            = aws_vpc.capstone-vpc.id
-  cidr_block        = var.capstone_db_subnet_2_cidr
-  availability_zone = var.availability_zones[1]
-
-  tags = merge(
-    {
-      Name = "db-subnet-2"
-    },
-    var.network_tags
-  )
-}
-
 # ===============================
 # Internet Gateway
 # ================================
 resource "aws_internet_gateway" "capstone-igw" {
-  vpc_id = aws_vpc.capstone-vpc.id
+  vpc_id = var.capstone_vpc_id
 
   tags = merge(
     {
@@ -128,7 +28,7 @@ resource "aws_eip" "capstone-nat-eip" {
 
 resource "aws_nat_gateway" "capstone-nat-gw" {
   allocation_id = aws_eip.capstone-nat-eip.id
-  subnet_id     = aws_subnet.capstone-public-subnet-1.id
+  subnet_id     = var.capstone_public_subnet_1_id
   depends_on    = [aws_internet_gateway.capstone-igw]
 
   tags = merge(
@@ -143,7 +43,7 @@ resource "aws_nat_gateway" "capstone-nat-gw" {
 # Route Table
 # ================================
 resource "aws_route_table" "capstone-public-rt" {
-  vpc_id = aws_vpc.capstone-vpc.id
+  vpc_id = var.capstone_vpc_id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -159,7 +59,7 @@ resource "aws_route_table" "capstone-public-rt" {
 }
 
 resource "aws_route_table" "capstone-private-rt" {
-  vpc_id = aws_vpc.capstone-vpc.id
+  vpc_id = var.capstone_vpc_id
 
   route {
     cidr_block     = "0.0.0.0/0"
@@ -175,7 +75,7 @@ resource "aws_route_table" "capstone-private-rt" {
 }
 
 resource "aws_route_table" "capstone-db-rt" {
-  vpc_id = aws_vpc.capstone-vpc.id
+  vpc_id = var.capstone_vpc_id
 
   tags = merge(
     {
@@ -189,32 +89,32 @@ resource "aws_route_table" "capstone-db-rt" {
 # Route Table - Subnet association
 # ================================
 resource "aws_route_table_association" "capstone-public-rt-associate-1" {
-  subnet_id      = aws_subnet.capstone-public-subnet-1.id
+  subnet_id      = var.capstone_public_subnet_1_id
   route_table_id = aws_route_table.capstone-public-rt.id
 }
 
 resource "aws_route_table_association" "capstone-public-rt-associate-2" {
-  subnet_id      = aws_subnet.capstone-public-subnet-2.id
+  subnet_id      = var.capstone_public_subnet_2_id
   route_table_id = aws_route_table.capstone-public-rt.id
 }
 
 resource "aws_route_table_association" "capstone-private-rt-associate-1" {
-  subnet_id      = aws_subnet.capstone-private-subnet-1.id
+  subnet_id      = var.capstone_private_subnet_1_id
   route_table_id = aws_route_table.capstone-private-rt.id
 }
 
 resource "aws_route_table_association" "capstone-private-rt-associate-2" {
-  subnet_id      = aws_subnet.capstone-private-subnet-2.id
+  subnet_id      = var.capstone_private_subnet_2_id
   route_table_id = aws_route_table.capstone-private-rt.id
 }
 
 resource "aws_route_table_association" "capstone-db-rt-associate-1" {
-  subnet_id      = aws_subnet.capstone-db-subnet-1.id
+  subnet_id      = var.capstone_db_subnet_1_id
   route_table_id = aws_route_table.capstone-db-rt.id
 }
 
 resource "aws_route_table_association" "capstone-db-rt-associate-2" {
-  subnet_id      = aws_subnet.capstone-db_subnet_2.id
+  subnet_id      = var.capstone_db_subnet_2_id
   route_table_id = aws_route_table.capstone-db-rt.id
 }
 
@@ -222,7 +122,7 @@ resource "aws_route_table_association" "capstone-db-rt-associate-2" {
 # S3 Gateway Endpoint
 # ================================
 resource "aws_vpc_endpoint" "capstone-s3-gw-ep" {
-  vpc_id            = aws_vpc.capstone-vpc.id
+  vpc_id            = var.capstone_vpc_id
   service_name      = "com.amazonaws.${var.aws_region}.s3"
   vpc_endpoint_type = "Gateway"
   route_table_ids = [
@@ -241,12 +141,12 @@ resource "aws_vpc_endpoint" "capstone-s3-gw-ep" {
 # ECR Interface Endpoint
 # ================================
 resource "aws_vpc_endpoint" "ecr-ep" {
-  vpc_id            = aws_vpc.capstone-vpc.id
+  vpc_id            = var.capstone_vpc_id
   service_name      = "com.amazonaws.${var.aws_region}.ecr.api"
   vpc_endpoint_type = "Interface"
   subnet_ids = [
-    aws_subnet.capstone-private-subnet-1.id,
-    aws_subnet.capstone-private-subnet-2.id
+    var.capstone_private_subnet_1_id,
+    var.capstone_private_subnet_2_id
   ]
   security_group_ids = [
     var.capstone_vpc_endpoint_sg_id
@@ -265,12 +165,12 @@ resource "aws_vpc_endpoint" "ecr-ep" {
 # Docker Interface Endpoint (Docker layer in ECR)
 # =======================================
 resource "aws_vpc_endpoint" "ecr-dkr-ep" {
-  vpc_id            = aws_vpc.capstone-vpc.id
+  vpc_id            = var.capstone_vpc_id
   service_name      = "com.amazonaws.${var.aws_region}.ecr.dkr"
   vpc_endpoint_type = "Interface"
   subnet_ids = [
-    aws_subnet.capstone-private-subnet-1.id,
-    aws_subnet.capstone-private-subnet-2.id
+    var.capstone_private_subnet_1_id,
+    var.capstone_private_subnet_2_id
   ]
   security_group_ids = [
     var.capstone_vpc_endpoint_sg_id
@@ -289,12 +189,12 @@ resource "aws_vpc_endpoint" "ecr-dkr-ep" {
 # Secrets Manager Interface Endpoint
 # =======================================
 resource "aws_vpc_endpoint" "secrets-manager-ep" {
-  vpc_id            = aws_vpc.capstone-vpc.id
+  vpc_id            = var.capstone_vpc_id
   service_name      = "com.amazonaws.${var.aws_region}.secretsmanager"
   vpc_endpoint_type = "Interface"
   subnet_ids = [
-    aws_subnet.capstone-private-subnet-1.id,
-    aws_subnet.capstone-private-subnet-2.id
+    var.capstone_private_subnet_1_id,
+    var.capstone_private_subnet_2_id
   ]
   security_group_ids = [
     var.capstone_vpc_endpoint_sg_id
@@ -313,12 +213,12 @@ resource "aws_vpc_endpoint" "secrets-manager-ep" {
 # ECS Interface Endpoint
 # =======================================
 resource "aws_vpc_endpoint" "ecs" {
-  vpc_id            = aws_vpc.capstone-vpc.id
+  vpc_id            = var.capstone_vpc_id
   service_name      = "com.amazonaws.${var.aws_region}.ecs"
   vpc_endpoint_type = "Interface"
   subnet_ids = [
-    aws_subnet.capstone-private-subnet-1.id,
-    aws_subnet.capstone-private-subnet-2.id
+    var.capstone_private_subnet_1_id,
+    var.capstone_private_subnet_2_id
   ]
   security_group_ids = [
     var.capstone_vpc_endpoint_sg_id
@@ -352,12 +252,12 @@ locals {
 
 resource "aws_vpc_endpoint" "ssm" {
   for_each          = local.ssm_interface_endpoints
-  vpc_id            = aws_vpc.capstone-vpc.id
+  vpc_id            = var.capstone_vpc_id
   service_name      = "com.amazonaws.${var.aws_region}.${each.value.service}"
   vpc_endpoint_type = "Interface"
   subnet_ids = [
-    aws_subnet.capstone-private-subnet-1.id,
-    aws_subnet.capstone-private-subnet-2.id
+    var.capstone_private_subnet_1_id,
+    var.capstone_private_subnet_2_id
   ]
   security_group_ids = [
     var.capstone_vpc_endpoint_sg_id
