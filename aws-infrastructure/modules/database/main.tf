@@ -1,3 +1,14 @@
+# ================================================================
+# Filter AZs from particular region - Exclude "Local Zone" option
+# =================================================================
+data "aws_availability_zones" "available" {
+  state = "available"
+
+  filter {
+    name   = "zone-type"
+    values = ["availability-zone"]
+  }
+}
 
 # =====================
 # DB subnet groups
@@ -49,7 +60,7 @@ resource "aws_rds_cluster_instance" "primary-instance" {
   instance_class      = "db.serverless"
   engine              = aws_rds_cluster.capstone-aurora-cluster.engine
   publicly_accessible = false
-  availability_zone   = "ap-southeast-1a"
+  availability_zone   = data.aws_availability_zones.available.names[0]
 
   tags = merge(
     {
@@ -68,7 +79,7 @@ resource "aws_rds_cluster_instance" "replica-instance" {
   instance_class      = "db.serverless"
   engine              = aws_rds_cluster.capstone-aurora-cluster.engine
   publicly_accessible = false
-  availability_zone   = "ap-southeast-1b"
+  availability_zone   = data.aws_availability_zones.available.names[1]
 
   # Higher numbers mean lower priority. If the writer fails, AWS prefers lower tiers (1) to become the new primary.
   promotion_tier = 1
