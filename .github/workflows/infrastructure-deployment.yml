@@ -1,4 +1,8 @@
-# Upstream dependency: "Secrets Module Infrastructure Deployment" and "Bootstrap Secret" workflows were executed successfully
+# Upstream dependency: required all below workflows are executed successfully before trigger this Capstone Infrastructure Deployment workflow
+#   "Secrets Module Infrastructure Deployment"
+#   "Bootstrap Application Secrets"
+#   "Capstone Legacy Network Infrastructure Deployment"
+
 name: Capstone Infrastructure Deployment
 
 on:
@@ -18,8 +22,8 @@ on:
     branches:
       - main
     inputs:
-      primary_aws_region:
-        description: "AWS primary region"
+      aws_region:
+        description: "Target AWS region deployment"
         required: true
         type: choice
         default: ap-southeast-1
@@ -38,7 +42,8 @@ permissions:
   contents: read
 
 env:
-  PRIMARY_AWS_REGION: ${{ inputs.primary_aws_region || 'ap-southeast-1'}}
+  AWS_REGION: ${{ inputs.aws_region || 'ap-southeast-1'}}
+  ENABLED_DR: ${{ inputs.aws_region == 'ap-northeast-1' }}
   ECS_DESIRED_TASK: ${{ inputs.ecs_desired_task || 1 }}
   TF_WORKING_DIR: aws-infrastructure
 
@@ -56,7 +61,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::249899229305:role/github-actions-infrastructure-deployment-role
-          aws-region: ${{ env.PRIMARY_AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Install Blue/Green Lambda Hook Dependencies
         working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
@@ -111,7 +116,8 @@ jobs:
         # HashiCorp support the saved plan (terraform plan -out=...) can be passed to terraform apply
         run: |
           terraform plan \
-            -var="primary_aws_region=${{ env.PRIMARY_AWS_REGION }}" \
+            -var="aws_region=${{ env.AWS_REGION }}" \
+            -var="enabled_dr=${{ env.ENABLED_DR }}" \
             -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}" \
             -out=tfplan
 
@@ -133,7 +139,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::249899229305:role/github-actions-infrastructure-deployment-role
-          aws-region: ${{ env.PRIMARY_AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Install Blue/Green Lambda Hook Dependencies
         working-directory: aws-infrastructure/modules/function/driver-blue-green-hook-function
@@ -183,5 +189,6 @@ jobs:
         run: |
           terraform apply \
             -auto-approve \ 
-            -var="primary_aws_region=${{ env.PRIMARY_AWS_REGION }}" \
+            -var="aws_region=${{ env.AWS_REGION }}" \
+            -var="enabled_dr=${{ env.ENABLED_DR }}" \
             -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}"

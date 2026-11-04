@@ -1,6 +1,12 @@
-variable "primary_aws_region" {
-  description = "AWS primary region"
+variable "aws_region" {
+  description = "Targeted AWS region"
   type        = string
+}
+
+variable "enabled_dr" {
+  description = "DR infrastructure deployment flag"
+  type        = bool
+  default     = false
 }
 
 variable "network_tags" {
