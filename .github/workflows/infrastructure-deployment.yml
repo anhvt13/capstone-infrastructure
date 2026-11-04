@@ -188,7 +188,7 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform apply \
-            -auto-approve \ 
+            -auto-approve \
             -var="aws_region=${{ env.AWS_REGION }}" \
             -var="enabled_dr=${{ env.ENABLED_DR }}" \
             -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}"
