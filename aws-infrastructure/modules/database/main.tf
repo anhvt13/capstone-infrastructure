@@ -44,7 +44,7 @@ resource "aws_rds_cluster" "capstone-aurora-cluster" {
 # Primary instance
 # =====================
 resource "aws_rds_cluster_instance" "primary-instance" {
-  identifier          = "capstone-aurora-instance"
+  identifier          = "capstone-aurora-primary-instance"
   cluster_identifier  = aws_rds_cluster.capstone-aurora-cluster.id
   instance_class      = "db.serverless"
   engine              = aws_rds_cluster.capstone-aurora-cluster.engine
@@ -63,7 +63,7 @@ resource "aws_rds_cluster_instance" "primary-instance" {
 # Replica instance
 # =====================
 resource "aws_rds_cluster_instance" "replica-instance" {
-  identifier          = "capstone-aurora-instance"
+  identifier          = "capstone-aurora-replica-instance"
   cluster_identifier  = aws_rds_cluster.capstone-aurora-cluster.id
   instance_class      = "db.serverless"
   engine              = aws_rds_cluster.capstone-aurora-cluster.engine
