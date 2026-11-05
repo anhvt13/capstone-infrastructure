@@ -139,7 +139,7 @@ jobs:
             -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}" \
             -out=tfplan
 
-        # Upload tfplan as a workflow artifact
+      - name: Upload Terraform Plan Artifact
         uses: actions/upload-artifact@v4
         with:
           name: tfplan-artifact-${{ github.sha }}
@@ -226,11 +226,13 @@ jobs:
             -reconfigure \
             -backend-config="${BACKEND_CONFIG}"
 
-      - name: Terraform Apply
-        working-directory: ${{ env.TF_WORKING_DIR }}
+      - name: Download Terraform Plan Artifact
         uses: actions/download-artifact@v4
         with:
-         name: tfplan-artifact-${{ github.sha }}
+          name: tfplan-artifact-${{ github.sha }}
+
+      - name: Terraform Apply
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform apply \
             -auto-approve \
