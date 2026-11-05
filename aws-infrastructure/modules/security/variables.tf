@@ -32,3 +32,8 @@ variable "bastion_host_security_group_id" {
   description = "Bastion host security group Id"
   type        = string
 }
+
+variable "capstone_db_sg_id" {
+  description = "ID of database security group"
+  type        = string
+}

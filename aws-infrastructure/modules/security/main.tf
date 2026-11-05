@@ -154,18 +154,18 @@ resource "aws_security_group" "capstone-private-sg" {
   )
 }
 
-resource "aws_security_group" "capstone-db-sg" {
-  name        = "capstone-db-sg"
-  description = "DB security group"
-  vpc_id      = var.capstone_vpc_id
-
-  tags = merge(
-    {
-      Name = "capstone-db-sg"
-    },
-    var.security_tags
-  )
-}
+# resource "aws_security_group" "capstone-db-sg" {
+#   name        = "capstone-db-sg"
+#   description = "DB security group"
+#   vpc_id      = var.capstone_vpc_id
+#
+#   tags = merge(
+#     {
+#       Name = "capstone-db-sg"
+#     },
+#     var.security_tags
+#   )
+# }
 
 resource "aws_security_group" "capstone-alb-sg" {
   name        = "capstone-alb-sg"
@@ -272,7 +272,7 @@ resource "aws_vpc_security_group_egress_rule" "private-sg-outbound-rule" {
 # }
 
 resource "aws_vpc_security_group_ingress_rule" "db-sg-inbound-rule-from-rds-proxy-sg" {
-  security_group_id            = aws_security_group.capstone-db-sg.id
+  security_group_id            = var.capstone_db_sg_id
   referenced_security_group_id = aws_security_group.capstone-rds-proxy-sg.id
   from_port                    = 5432
   to_port                      = 5432
@@ -281,7 +281,7 @@ resource "aws_vpc_security_group_ingress_rule" "db-sg-inbound-rule-from-rds-prox
 
 
 resource "aws_vpc_security_group_egress_rule" "db-sg-outbound-rule" {
-  security_group_id = aws_security_group.capstone-db-sg.id
+  security_group_id = var.capstone_db_sg_id
   cidr_ipv4         = var.capstone_vpc_cidr_block
   ip_protocol       = "-1"
 }

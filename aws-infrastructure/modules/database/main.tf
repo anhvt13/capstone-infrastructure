@@ -1,4 +1,4 @@
-# ================================================================
+# =================================================================
 # Filter AZs from particular region - Exclude "Local Zone" option
 # =================================================================
 data "aws_availability_zones" "available" {
@@ -10,11 +10,11 @@ data "aws_availability_zones" "available" {
   }
 }
 
-# =====================
-# DB subnet groups
-# =====================
-resource "aws_db_subnet_group" "capstone-aurora-subnet-group" {
-  name       = "capstone-aurora-subnet-group"
+# ===================================
+# DB subnet groups - Primary Site
+# ===================================
+resource "aws_db_subnet_group" "capstone-db-subnet-group" {
+  name       = "capstone-db-subnet-group"
   subnet_ids = var.capstone_db_subnet_ids
 
   tags = merge(
@@ -25,16 +25,45 @@ resource "aws_db_subnet_group" "capstone-aurora-subnet-group" {
   )
 }
 
-# =====================
-# Aurora cluster
-# =====================
-resource "aws_rds_cluster" "capstone-aurora-cluster" {
-  cluster_identifier          = "capstone-aurora-cluster"
-  engine                      = "aurora-postgresql"
+# ===================================
+# DB subnet groups - DR Site
+# ===================================
+resource "aws_db_subnet_group" "dr-capstone-db-subnet-group" {
+  name       = "dr-capstone-db-subnet-group"
+  subnet_ids = var.dr_capstone_db_subnet_ids
+
+  tags = merge(
+    {
+      Name = "dr-capstone-db-subnet-group"
+    },
+    var.database_tags
+  )
+}
+
+# ===================================
+# Aurora Global Database
+# ===================================
+resource "aws_rds_global_cluster" "capstone-global-cluster" {
+  global_cluster_identifier = "capstone-global-cluster"
+  engine                    = "aurora-postgresql"
+  engine_version            = var.aurora_engine_version
+  database_name             = var.capstone_database_name
+  storage_encrypted         = true
+  deletion_protection       = true
+}
+
+# ========================
+# Primary Cluster
+# ========================
+resource "aws_rds_cluster" "capstone-cluster" {
+  cluster_identifier          = "capstone-cluster"
+  engine                      = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version              = aws_rds_global_cluster.capstone-global-cluster.engine_version
+  global_cluster_identifier   = aws_rds_global_cluster.capstone-global-cluster.id
   database_name               = var.capstone_database_name
   master_username             = var.capstone_master_username
   manage_master_user_password = true
-  db_subnet_group_name        = aws_db_subnet_group.capstone-aurora-subnet-group.name
+  db_subnet_group_name        = aws_db_subnet_group.capstone-db-subnet-group.name
   vpc_security_group_ids      = [var.capstone_db_security_group_id]
   skip_final_snapshot         = true
   serverlessv2_scaling_configuration {
@@ -45,7 +74,7 @@ resource "aws_rds_cluster" "capstone-aurora-cluster" {
 
   tags = merge(
     {
-      Name = "capstone-aurora-cluster"
+      Name = "capstone-cluster"
     },
     var.database_tags
   )
@@ -54,30 +83,32 @@ resource "aws_rds_cluster" "capstone-aurora-cluster" {
 # =====================
 # Primary instance
 # =====================
-resource "aws_rds_cluster_instance" "primary-instance" {
-  identifier          = "capstone-aurora-primary-instance"
-  cluster_identifier  = aws_rds_cluster.capstone-aurora-cluster.id
+resource "aws_rds_cluster_instance" "capstone-primary-instance" {
+  identifier          = "capstone-primary-instance"
+  cluster_identifier  = aws_rds_cluster.capstone-cluster.id
   instance_class      = "db.serverless"
-  engine              = aws_rds_cluster.capstone-aurora-cluster.engine
+  engine              = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version      = aws_rds_global_cluster.capstone-global-cluster.engine_version
   publicly_accessible = false
   availability_zone   = data.aws_availability_zones.available.names[0]
 
   tags = merge(
     {
-      Name = "capstone-aurora-instance"
+      Name = "capstone-primary-instance"
     },
     var.database_tags
   )
 }
 
-# =====================
-# Replica instance
-# =====================
-resource "aws_rds_cluster_instance" "replica-instance" {
+# ===============================
+# (Primary site) Replica instance
+# ===============================
+resource "aws_rds_cluster_instance" "capstone-replica-instance" {
   identifier          = "capstone-aurora-replica-instance"
-  cluster_identifier  = aws_rds_cluster.capstone-aurora-cluster.id
+  cluster_identifier  = aws_rds_cluster.capstone-cluster.id
   instance_class      = "db.serverless"
-  engine              = aws_rds_cluster.capstone-aurora-cluster.engine
+  engine              = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version      = aws_rds_global_cluster.capstone-global-cluster.engine_version
   publicly_accessible = false
   availability_zone   = data.aws_availability_zones.available.names[1]
 
@@ -86,12 +117,83 @@ resource "aws_rds_cluster_instance" "replica-instance" {
 
   tags = merge(
     {
-      Name = "capstone-aurora-instance"
+      Name = "capstone-replica-instance"
     },
     var.database_tags
   )
 }
 
+# ========================
+# DR Cluster
+# ========================
+resource "aws_rds_cluster" "dr-capstone-cluster" {
+  provider                    = aws.tokyo
+  cluster_identifier          = "capstone-dr-cluster"
+  engine                      = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version              = aws_rds_global_cluster.capstone-global-cluster.engine_version
+  global_cluster_identifier   = aws_rds_global_cluster.capstone-global-cluster.id
+  database_name               = var.capstone_database_name
+  master_username             = var.capstone_master_username
+  manage_master_user_password = true
+  db_subnet_group_name        = aws_db_subnet_group.dr-capstone-db-subnet-group.name
+  vpc_security_group_ids      = [var.dr_capstone_db_security_group_id]
+  skip_final_snapshot         = true
+  serverlessv2_scaling_configuration {
+    max_capacity             = 2
+    min_capacity             = 0.5
+    seconds_until_auto_pause = 900
+  }
+
+  tags = merge(
+    {
+      Name = "dr-capstone-cluster"
+    },
+    var.database_tags
+  )
+}
+
+# =====================
+# (DR) Primary instance
+# =====================
+resource "aws_rds_cluster_instance" "dr-capstone-primary-instance" {
+  identifier          = "dr-capstone-primary-instance"
+  cluster_identifier  = aws_rds_cluster.dr-capstone-cluster.id
+  instance_class      = "db.serverless"
+  engine              = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version      = aws_rds_global_cluster.capstone-global-cluster.engine_version
+  publicly_accessible = false
+  availability_zone   = data.aws_availability_zones.available.names[0]
+
+  tags = merge(
+    {
+      Name = "dr-capstone-primary-instance"
+    },
+    var.database_tags
+  )
+}
+
+# ===============================
+# (DR) Replica instance
+# ===============================
+resource "aws_rds_cluster_instance" "dr-capstone-replica-instance" {
+  identifier          = "dr-capstone-replica-instance"
+  cluster_identifier  = aws_rds_cluster.dr-capstone-cluster.id
+  instance_class      = "db.serverless"
+  engine              = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version      = aws_rds_global_cluster.capstone-global-cluster.engine_version
+  publicly_accessible = false
+  availability_zone   = data.aws_availability_zones.available.names[1]
+
+  # Higher numbers mean lower priority. If the writer fails, AWS prefers lower tiers (1) to become the new primary.
+  promotion_tier = 1
+
+  tags = merge(
+    {
+      Name = "dr-capstone-replica-instance"
+    },
+    var.database_tags
+  )
+}
 
 
 
