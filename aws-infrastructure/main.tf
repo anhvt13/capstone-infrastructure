@@ -7,29 +7,31 @@
 # ====================
 locals {
   network_outputs = var.enabled_dr ? {
-    capstone_vpc_id              = data.terraform_remote_state.legacy_network.outputs.dr_capstone_vpc_id
-    capstone_vpc_cidr_block      = data.terraform_remote_state.legacy_network.outputs.dr_capstone_vpc_cidr_block
-    capstone_public_subnet_1_id  = data.terraform_remote_state.legacy_network.outputs.dr_capstone_public_subnet_1_id
-    capstone_public_subnet_2_id  = data.terraform_remote_state.legacy_network.outputs.dr_capstone_public_subnet_2_id
-    capstone_private_subnet_1_id = data.terraform_remote_state.legacy_network.outputs.dr_capstone_private_subnet_1_id
-    capstone_private_subnet_2_id = data.terraform_remote_state.legacy_network.outputs.dr_capstone_private_subnet_2_id
-    capstone_db_subnet_1_id      = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_1_id
-    capstone_db_subnet_2_id      = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_2_id
-    capstone_public_subnet_ids   = data.terraform_remote_state.legacy_network.outputs.dr_capstone_public_subnet_ids
-    capstone_private_subnet_ids  = data.terraform_remote_state.legacy_network.outputs.dr_capstone_private_subnet_ids
-    capstone_db_subnet_ids       = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_ids
+    capstone_vpc_id               = data.terraform_remote_state.legacy_network.outputs.dr_capstone_vpc_id
+    capstone_vpc_cidr_block       = data.terraform_remote_state.legacy_network.outputs.dr_capstone_vpc_cidr_block
+    capstone_public_subnet_1_id   = data.terraform_remote_state.legacy_network.outputs.dr_capstone_public_subnet_1_id
+    capstone_public_subnet_2_id   = data.terraform_remote_state.legacy_network.outputs.dr_capstone_public_subnet_2_id
+    capstone_private_subnet_1_id  = data.terraform_remote_state.legacy_network.outputs.dr_capstone_private_subnet_1_id
+    capstone_private_subnet_2_id  = data.terraform_remote_state.legacy_network.outputs.dr_capstone_private_subnet_2_id
+    capstone_db_subnet_1_id       = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_1_id
+    capstone_db_subnet_2_id       = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_2_id
+    capstone_public_subnet_ids    = data.terraform_remote_state.legacy_network.outputs.dr_capstone_public_subnet_ids
+    capstone_private_subnet_ids   = data.terraform_remote_state.legacy_network.outputs.dr_capstone_private_subnet_ids
+    capstone_db_subnet_ids        = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_ids
+    capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_sg_id
     } : {
-    capstone_vpc_id              = data.terraform_remote_state.legacy_network.outputs.capstone_vpc_id
-    capstone_vpc_cidr_block      = data.terraform_remote_state.legacy_network.outputs.capstone_vpc_cidr_block
-    capstone_public_subnet_1_id  = data.terraform_remote_state.legacy_network.outputs.capstone_public_subnet_1_id
-    capstone_public_subnet_2_id  = data.terraform_remote_state.legacy_network.outputs.capstone_public_subnet_2_id
-    capstone_private_subnet_1_id = data.terraform_remote_state.legacy_network.outputs.capstone_private_subnet_1_id
-    capstone_private_subnet_2_id = data.terraform_remote_state.legacy_network.outputs.capstone_private_subnet_2_id
-    capstone_db_subnet_1_id      = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_1_id
-    capstone_db_subnet_2_id      = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_2_id
-    capstone_public_subnet_ids   = data.terraform_remote_state.legacy_network.outputs.capstone_public_subnet_ids
-    capstone_private_subnet_ids  = data.terraform_remote_state.legacy_network.outputs.capstone_private_subnet_ids
-    capstone_db_subnet_ids       = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_ids
+    capstone_vpc_id               = data.terraform_remote_state.legacy_network.outputs.capstone_vpc_id
+    capstone_vpc_cidr_block       = data.terraform_remote_state.legacy_network.outputs.capstone_vpc_cidr_block
+    capstone_public_subnet_1_id   = data.terraform_remote_state.legacy_network.outputs.capstone_public_subnet_1_id
+    capstone_public_subnet_2_id   = data.terraform_remote_state.legacy_network.outputs.capstone_public_subnet_2_id
+    capstone_private_subnet_1_id  = data.terraform_remote_state.legacy_network.outputs.capstone_private_subnet_1_id
+    capstone_private_subnet_2_id  = data.terraform_remote_state.legacy_network.outputs.capstone_private_subnet_2_id
+    capstone_db_subnet_1_id       = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_1_id
+    capstone_db_subnet_2_id       = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_2_id
+    capstone_public_subnet_ids    = data.terraform_remote_state.legacy_network.outputs.capstone_public_subnet_ids
+    capstone_private_subnet_ids   = data.terraform_remote_state.legacy_network.outputs.capstone_private_subnet_ids
+    capstone_db_subnet_ids        = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_ids
+    capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.capstone_db_sg_id
   }
 }
 
@@ -63,20 +65,28 @@ module "security" {
   capstone_private_subnet_ids    = local.network_outputs.capstone_private_subnet_ids
   capstone_public_subnet_ids     = local.network_outputs.capstone_public_subnet_ids
   bastion_host_security_group_id = module.bastion.bastion_host_security_group_id
+  capstone_db_sg_id              = local.network_outputs.capstone_db_security_group_id
   security_tags                  = var.security_tags
 }
 
-# =====================
-# Database module
-# =====================
+# ==============================================================
+# Database module - Initial ONLY ONCE on primary site deployment
+# ==============================================================
 module "database" {
+  count  = !var.enabled_dr ? 1 : 0
   source = "./modules/database"
+  providers = {
+    aws.tokyo = aws.tokyo
+  }
 
-  capstone_database_name        = var.capstone_database_name
-  capstone_master_username      = var.capstone_master_username
-  capstone_db_security_group_id = module.security.capstone_db_security_group_id
-  capstone_db_subnet_ids        = local.network_outputs.capstone_db_subnet_ids
-  database_tags                 = var.database_tags
+  aurora_engine_version            = var.aurora_engine_version
+  capstone_database_name           = var.capstone_database_name
+  capstone_master_username         = var.capstone_master_username
+  capstone_db_security_group_id    = data.terraform_remote_state.legacy_network.outputs.capstone_db_sg_id
+  capstone_db_subnet_ids           = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_ids
+  dr_capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_sg_id
+  dr_capstone_db_subnet_ids        = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_ids
+  database_tags                    = var.database_tags
 }
 
 # =====================
@@ -87,10 +97,10 @@ module "bastion" {
 
   capstone_vpc_id               = local.network_outputs.capstone_vpc_id
   capstone_private_subnet_id    = local.network_outputs.capstone_private_subnet_1_id
-  capstone-db-sg-id             = module.security.capstone_db_security_group_id
+  capstone_db_sg_id             = local.network_outputs.capstone_db_security_group_id
   ami-id                        = data.aws_ssm_parameter.al2023_arm64.value
   instance_type                 = var.capstone_ec2_instance_type
-  db_secret_arn                 = module.database.rds_secret_arn
+  db_secret_arn                 = module.database[0].rds_secret_arn
   bastion_tags                  = var.bastion_tags
   capstone-db-schema-bucket-arn = module.storage.capstone-db-schema-bucket-arn
   security_tags                 = var.security_tags
@@ -133,7 +143,7 @@ module "container" {
   primary_aws_region                         = var.aws_region
   database_name                              = var.database_name
   database_port                              = var.database_port
-  rds_secret_arn                             = module.database.rds_secret_arn
+  rds_secret_arn                             = module.database[0].rds_secret_arn
   bff_secret_arn                             = data.terraform_remote_state.secrets.outputs.bff_client_secret_arn
   driver_service_secret_arn                  = data.terraform_remote_state.secrets.outputs.driver_service_secret_arn
   capstone_vpc_id                            = local.network_outputs.capstone_vpc_id
@@ -219,11 +229,11 @@ module "edge_authenticate_function" {
 module "db-proxy" {
   source = "./modules/db-proxy"
 
-  rds_secret_arn                       = module.database.rds_secret_arn
+  rds_secret_arn                       = module.database[0].rds_secret_arn
   database_tags                        = var.database_tags
   capstone_db_subnet_ids               = local.network_outputs.capstone_db_subnet_ids
   capstone_rds_proxy_security_group_id = module.security.capstone_rds_proxy_security_group_id
-  capstone_aurora_cluster_identifier   = module.database.capstone_aurora_cluster_identifier
+  capstone_aurora_cluster_identifier   = module.database[0].capstone_aurora_cluster_identifier
 
   depends_on = [module.database]
 }

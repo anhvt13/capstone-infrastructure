@@ -23,8 +23,8 @@ variable "instance_type" {
   type        = string
 }
 
-variable "capstone-db-sg-id" {
-  description = "DB security group ID"
+variable "capstone_db_sg_id" {
+  description = "ID of database security group"
   type        = string
 }
 

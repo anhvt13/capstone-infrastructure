@@ -199,3 +199,9 @@ variable "target_origin_id" {
   type        = string
   default     = "capstone-alb-origin"
 }
+
+variable "aurora_engine_version" {
+  description = "Aurora engine version"
+  type        = string
+  default     = "18.6"
+}

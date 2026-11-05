@@ -122,7 +122,7 @@ resource "aws_vpc_security_group_egress_rule" "bastion-sg-outbound-rule" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "db-sg-inbound-rule" {
-  security_group_id            = var.capstone-db-sg-id
+  security_group_id            = var.capstone_db_sg_id
   referenced_security_group_id = aws_security_group.capstone-bastion-sg.id
   from_port                    = 5432
   to_port                      = 5432
