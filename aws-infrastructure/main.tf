@@ -76,7 +76,7 @@ module "database" {
   count  = !var.enabled_dr ? 1 : 0
   source = "./modules/database"
   providers = {
-    aws.tokyo = aws.tokyo
+    aws.dr_site = aws.dr_site
   }
 
   aurora_engine_version            = var.aurora_engine_version
