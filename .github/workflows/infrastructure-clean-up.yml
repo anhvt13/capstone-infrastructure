@@ -42,6 +42,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Detect Deployment Region
+        id: region
+        shell: bash
+        run: |
+          if [[ "$AWS_REGION" == "ap-southeast-1" ]]; then
+            echo "BACKEND_CONFIG=backend-primary.hcl" >> "$GITHUB_ENV"
+          elif [[ "$AWS_REGION" == "ap-northeast-1" ]]; then
+            echo "BACKEND_CONFIG=backend-dr.hcl" >> "$GITHUB_ENV"
+          else
+            echo "Unsupported region: $AWS_REGION"
+            exit 1
+          fi
+          echo "AWS_REGION=$AWS_REGION" >> "$GITHUB_ENV"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -88,7 +102,10 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init
+        run: |
+          terraform init \
+            -reconfigure \
+            -backend-config="${BACKEND_CONFIG}"
 
       - name: Terraform Destroy
         working-directory: ${{ env.TF_WORKING_DIR }}

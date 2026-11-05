@@ -57,6 +57,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Detect Deployment Region
+        id: region
+        shell: bash
+        run: |
+            if [[ "$AWS_REGION" == "ap-southeast-1" ]]; then
+              echo "BACKEND_CONFIG=backend-primary.hcl" >> "$GITHUB_ENV"
+            elif [[ "$AWS_REGION" == "ap-northeast-1" ]]; then
+              echo "BACKEND_CONFIG=backend-dr.hcl" >> "$GITHUB_ENV"
+            else
+              echo "Unsupported region: $AWS_REGION"
+              exit 1
+            fi
+            echo "AWS_REGION=$AWS_REGION" >> "$GITHUB_ENV"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -100,7 +114,10 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init
+        run: |
+          terraform init \
+            -reconfigure \
+            -backend-config="${BACKEND_CONFIG}"
 
       - name: Terraform Format Check
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -116,10 +133,22 @@ jobs:
         # HashiCorp support the saved plan (terraform plan -out=...) can be passed to terraform apply
         run: |
           terraform plan \
+            -input=false \
             -var="aws_region=${{ env.AWS_REGION }}" \
             -var="enabled_dr=${{ env.ENABLED_DR }}" \
             -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}" \
             -out=tfplan
+
+        # Upload tfplan as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-artifact-${{ github.sha }}
+          path: |
+            aws-infrastructure/tfplan
+            aws-infrastructure/modules/function/driver-blue-green-hook-function/driver-blue-green-hook-function.zip
+            aws-infrastructure/modules/function/edge-authenticate-function/cognito-jwt-edge-auth-function.zip
+          retention-days: 1
+          if-no-files-found: error
 
   terraform-apply:
     name: Terraform Apply
@@ -134,6 +163,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Detect Deployment Region
+        id: region
+        shell: bash
+        run: |
+          if [[ "$AWS_REGION" == "ap-southeast-1" ]]; then
+            echo "BACKEND_CONFIG=backend-primary.hcl" >> "$GITHUB_ENV"
+          elif [[ "$AWS_REGION" == "ap-northeast-1" ]]; then
+            echo "BACKEND_CONFIG=backend-dr.hcl" >> "$GITHUB_ENV"
+          else
+            echo "Unsupported region: $AWS_REGION"
+            exit 1
+          fi
+          echo "AWS_REGION=$AWS_REGION" >> "$GITHUB_ENV"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -178,17 +221,17 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init
-
-      - name: Terraform Validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform validate
+        run: |
+          terraform init \
+            -reconfigure \
+            -backend-config="${BACKEND_CONFIG}"
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
+        uses: actions/download-artifact@v4
+        with:
+         name: tfplan-artifact-${{ github.sha }}
         run: |
           terraform apply \
             -auto-approve \
-            -var="aws_region=${{ env.AWS_REGION }}" \
-            -var="enabled_dr=${{ env.ENABLED_DR }}" \
-            -var="ecs_desired_task=${{ env.ECS_DESIRED_TASK}}"
+            tfplan
