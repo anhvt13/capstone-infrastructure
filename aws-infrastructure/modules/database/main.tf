@@ -29,6 +29,7 @@ resource "aws_db_subnet_group" "capstone-db-subnet-group" {
 # DB subnet groups - DR Site
 # ===================================
 resource "aws_db_subnet_group" "dr-capstone-db-subnet-group" {
+  provider   = aws.dr_site
   name       = "dr-capstone-db-subnet-group"
   subnet_ids = var.dr_capstone_db_subnet_ids
 
@@ -127,7 +128,7 @@ resource "aws_rds_cluster_instance" "capstone-replica-instance" {
 # DR Cluster
 # ========================
 resource "aws_rds_cluster" "dr-capstone-cluster" {
-  provider                    = aws.tokyo
+  provider                    = aws.dr_site
   cluster_identifier          = "capstone-dr-cluster"
   engine                      = aws_rds_global_cluster.capstone-global-cluster.engine
   engine_version              = aws_rds_global_cluster.capstone-global-cluster.engine_version
