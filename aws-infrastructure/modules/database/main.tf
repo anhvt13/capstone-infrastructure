@@ -50,23 +50,23 @@ resource "aws_rds_global_cluster" "capstone-global-cluster" {
   engine_version            = var.aurora_engine_version
   database_name             = var.capstone_database_name
   storage_encrypted         = true
-  deletion_protection       = true
+  deletion_protection       = false
 }
 
 # ========================
 # Primary Cluster
 # ========================
 resource "aws_rds_cluster" "capstone-cluster" {
-  cluster_identifier          = "capstone-cluster"
-  engine                      = aws_rds_global_cluster.capstone-global-cluster.engine
-  engine_version              = aws_rds_global_cluster.capstone-global-cluster.engine_version
-  global_cluster_identifier   = aws_rds_global_cluster.capstone-global-cluster.id
-  database_name               = var.capstone_database_name
-  master_username             = var.capstone_master_username
-  manage_master_user_password = true
-  db_subnet_group_name        = aws_db_subnet_group.capstone-db-subnet-group.name
-  vpc_security_group_ids      = [var.capstone_db_security_group_id]
-  skip_final_snapshot         = true
+  cluster_identifier        = "capstone-cluster"
+  engine                    = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version            = aws_rds_global_cluster.capstone-global-cluster.engine_version
+  global_cluster_identifier = aws_rds_global_cluster.capstone-global-cluster.id
+  database_name             = var.capstone_database_name
+  master_username           = var.capstone_master_username
+  #manage_master_user_password = true
+  db_subnet_group_name   = aws_db_subnet_group.capstone-db-subnet-group.name
+  vpc_security_group_ids = [var.capstone_db_security_group_id]
+  skip_final_snapshot    = true
   serverlessv2_scaling_configuration {
     max_capacity             = 2
     min_capacity             = 0.5
@@ -128,17 +128,17 @@ resource "aws_rds_cluster_instance" "capstone-replica-instance" {
 # DR Cluster
 # ========================
 resource "aws_rds_cluster" "dr-capstone-cluster" {
-  provider                    = aws.dr_site
-  cluster_identifier          = "capstone-dr-cluster"
-  engine                      = aws_rds_global_cluster.capstone-global-cluster.engine
-  engine_version              = aws_rds_global_cluster.capstone-global-cluster.engine_version
-  global_cluster_identifier   = aws_rds_global_cluster.capstone-global-cluster.id
-  database_name               = var.capstone_database_name
-  master_username             = var.capstone_master_username
-  manage_master_user_password = true
-  db_subnet_group_name        = aws_db_subnet_group.dr-capstone-db-subnet-group.name
-  vpc_security_group_ids      = [var.dr_capstone_db_security_group_id]
-  skip_final_snapshot         = true
+  provider                  = aws.dr_site
+  cluster_identifier        = "capstone-dr-cluster"
+  engine                    = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version            = aws_rds_global_cluster.capstone-global-cluster.engine_version
+  global_cluster_identifier = aws_rds_global_cluster.capstone-global-cluster.id
+  database_name             = var.capstone_database_name
+  master_username           = var.capstone_master_username
+  #manage_master_user_password = true
+  db_subnet_group_name   = aws_db_subnet_group.dr-capstone-db-subnet-group.name
+  vpc_security_group_ids = [var.dr_capstone_db_security_group_id]
+  skip_final_snapshot    = true
   serverlessv2_scaling_configuration {
     max_capacity             = 2
     min_capacity             = 0.5
