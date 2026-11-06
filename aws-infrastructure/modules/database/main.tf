@@ -146,8 +146,8 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
   skip_final_snapshot       = true
 
   # Explicitly AWS-managed kms key for RDS in DR site
-  storage_encrypted         = true
-  kms_key_id                = "alias/aws/rds"
+  storage_encrypted = true
+  kms_key_id        = "alias/aws/rds"
 
   serverlessv2_scaling_configuration {
     max_capacity             = 2
