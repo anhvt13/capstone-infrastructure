@@ -17,3 +17,8 @@ output "driver_bg_validator_secret_arn" {
   description = "The ARN of driver blue/green hook validator secret"
   value       = aws_secretsmanager_secret.driver-bg-validator-secret.arn
 }
+
+output "aurora_credential_secret_arn" {
+  description = "The ARN of aurora credential secret"
+  value       = aws_secretsmanager_secret.aurora-credential.arn
+}
