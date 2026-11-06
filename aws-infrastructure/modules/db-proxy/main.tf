@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "rds_proxy_access_secrets" {
     actions = [
       "secretsmanager:GetSecretValue"
     ]
-    resources = [var.rds_secret_arn]
+    resources = var.rds_secret_arn != null ? [var.rds_secret_arn] : []
   }
 }
 

@@ -45,6 +45,7 @@ data "terraform_remote_state" "legacy_network" {
 # References to remote terraform primary infrastructure
 #===========================================================
 data "terraform_remote_state" "primary_infrastructure" {
+  count   = var.enabled_dr ? 1 : 0
   backend = "s3"
   config = {
     bucket = "capstone-terraform-state-249899229305-ap-southeast-1-an"
