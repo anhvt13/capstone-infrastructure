@@ -34,11 +34,9 @@ locals {
     capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.capstone_db_sg_id
   }
 
-  rds_secret_arn                     = var.enabled_dr ? one(module.database[*].dr_rds_secret_arn) : one(module.database[*].rds_secret_arn)
-  capstone_aurora_cluster_identifier = var.enabled_dr ? one(module.database[*].dr_capstone_aurora_cluster_identifier) : one(module.database[*].capstone_aurora_cluster_identifier)
+  rds_secret_arn                     = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure.outputs.dr_rds_secret_arn : data.terraform_remote_state.primary_infrastructure.outputs.rds_secret_arn
+  capstone_aurora_cluster_identifier = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure.outputs.dr_capstone_aurora_cluster_identifier : data.terraform_remote_state.primary_infrastructure.outputs.capstone_aurora_cluster_identifier
 }
-
-
 
 # ====================
 # Network module
