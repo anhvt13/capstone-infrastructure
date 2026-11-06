@@ -1,4 +1,11 @@
 # =================================================================
+#  Ephemeral resource reads a database credential secret
+# =================================================================
+ephemeral "aws_secretsmanager_secret_version" "aurora_master" {
+  secret_id = var.aurora_credential_secret_arn
+}
+
+# =================================================================
 # Filter AZs from particular region - Exclude "Local Zone" option
 # =================================================================
 data "aws_availability_zones" "available" {
@@ -57,16 +64,17 @@ resource "aws_rds_global_cluster" "capstone-global-cluster" {
 # Primary Cluster
 # ========================
 resource "aws_rds_cluster" "capstone-cluster" {
-  cluster_identifier        = "capstone-cluster"
-  engine                    = aws_rds_global_cluster.capstone-global-cluster.engine
-  engine_version            = aws_rds_global_cluster.capstone-global-cluster.engine_version
-  global_cluster_identifier = aws_rds_global_cluster.capstone-global-cluster.id
-  database_name             = var.capstone_database_name
-  master_username           = var.capstone_master_username
-  #manage_master_user_password = true
-  db_subnet_group_name   = aws_db_subnet_group.capstone-db-subnet-group.name
-  vpc_security_group_ids = [var.capstone_db_security_group_id]
-  skip_final_snapshot    = true
+  cluster_identifier         = "capstone-cluster"
+  engine                     = aws_rds_global_cluster.capstone-global-cluster.engine
+  engine_version             = aws_rds_global_cluster.capstone-global-cluster.engine_version
+  global_cluster_identifier  = aws_rds_global_cluster.capstone-global-cluster.id
+  database_name              = var.capstone_database_name
+  master_username            = var.aurora_master_username
+  master_password_wo         = jsondecode(ephemeral.aws_secretsmanager_secret_version.aurora_master.secret_string).password
+  master_password_wo_version = 1
+  db_subnet_group_name       = aws_db_subnet_group.capstone-db-subnet-group.name
+  vpc_security_group_ids     = [var.capstone_db_security_group_id]
+  skip_final_snapshot        = true
   serverlessv2_scaling_configuration {
     max_capacity             = 2
     min_capacity             = 0.5
@@ -134,11 +142,9 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
   engine_version            = aws_rds_global_cluster.capstone-global-cluster.engine_version
   global_cluster_identifier = aws_rds_global_cluster.capstone-global-cluster.id
   database_name             = var.capstone_database_name
-  master_username           = var.capstone_master_username
-  #manage_master_user_password = true
-  db_subnet_group_name   = aws_db_subnet_group.dr-capstone-db-subnet-group.name
-  vpc_security_group_ids = [var.dr_capstone_db_security_group_id]
-  skip_final_snapshot    = true
+  db_subnet_group_name      = aws_db_subnet_group.dr-capstone-db-subnet-group.name
+  vpc_security_group_ids    = [var.dr_capstone_db_security_group_id]
+  skip_final_snapshot       = true
   serverlessv2_scaling_configuration {
     max_capacity             = 2
     min_capacity             = 0.5

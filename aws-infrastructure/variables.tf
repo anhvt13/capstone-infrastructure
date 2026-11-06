@@ -105,12 +105,6 @@ variable "capstone_database_name" {
   default     = "capstone"
 }
 
-variable "capstone_master_username" {
-  description = "Aurora master username"
-  type        = string
-  default     = "master"
-}
-
 variable "capstone_ec2_instance_type" {
   description = "EC2 instance type for capstone workload"
   type        = string
@@ -145,6 +139,12 @@ variable "database_name" {
   description = "Database name"
   type        = string
   default     = "capstone"
+}
+
+variable "aurora_master_username" {
+  description = "Aurora database master username"
+  type        = string
+  default     = "master"
 }
 
 variable "ecs_desired_task" {

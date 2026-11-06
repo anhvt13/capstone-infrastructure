@@ -34,7 +34,6 @@ locals {
     capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.capstone_db_sg_id
   }
 
-  rds_secret_arn                     = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure[0].outputs.dr_rds_secret_arn : one(module.database[*].rds_secret_arn)
   capstone_aurora_cluster_identifier = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure[0].outputs.dr_capstone_aurora_cluster_identifier : one(module.database[*].capstone_aurora_cluster_identifier)
 }
 
@@ -84,12 +83,14 @@ module "database" {
 
   aurora_engine_version            = var.aurora_engine_version
   capstone_database_name           = var.capstone_database_name
-  capstone_master_username         = var.capstone_master_username
+  aurora_credential_secret_arn     = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
+  aurora_master_username           = var.aurora_master_username
   capstone_db_security_group_id    = data.terraform_remote_state.legacy_network.outputs.capstone_db_sg_id
   capstone_db_subnet_ids           = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_ids
   dr_capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_sg_id
   dr_capstone_db_subnet_ids        = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_ids
   database_tags                    = var.database_tags
+
 }
 
 # =====================
@@ -103,7 +104,7 @@ module "bastion" {
   capstone_db_sg_id             = local.network_outputs.capstone_db_security_group_id
   ami-id                        = data.aws_ssm_parameter.al2023_arm64.value
   instance_type                 = var.capstone_ec2_instance_type
-  db_secret_arn                 = local.rds_secret_arn
+  db_secret_arn                 = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
   bastion_tags                  = var.bastion_tags
   capstone-db-schema-bucket-arn = module.storage.capstone-db-schema-bucket-arn
   security_tags                 = var.security_tags
@@ -146,7 +147,7 @@ module "container" {
   primary_aws_region                         = var.aws_region
   database_name                              = var.database_name
   database_port                              = var.database_port
-  rds_secret_arn                             = local.rds_secret_arn
+  rds_secret_arn                             = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
   bff_secret_arn                             = data.terraform_remote_state.secrets.outputs.bff_client_secret_arn
   driver_service_secret_arn                  = data.terraform_remote_state.secrets.outputs.driver_service_secret_arn
   capstone_vpc_id                            = local.network_outputs.capstone_vpc_id
@@ -232,7 +233,7 @@ module "edge_authenticate_function" {
 module "db-proxy" {
   source = "./modules/db-proxy"
 
-  rds_secret_arn                       = local.rds_secret_arn
+  rds_secret_arn                       = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
   database_tags                        = var.database_tags
   capstone_db_subnet_ids               = local.network_outputs.capstone_db_subnet_ids
   capstone_rds_proxy_security_group_id = module.security.capstone_rds_proxy_security_group_id
