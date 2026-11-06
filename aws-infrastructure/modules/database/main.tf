@@ -113,7 +113,7 @@ resource "aws_rds_cluster_instance" "capstone-primary-instance" {
 # (Primary site) Replica instance
 # ===============================
 resource "aws_rds_cluster_instance" "capstone-replica-instance" {
-  identifier          = "capstone-aurora-replica-instance"
+  identifier          = "capstone-replica-instance"
   cluster_identifier  = aws_rds_cluster.capstone-cluster.id
   instance_class      = "db.serverless"
   engine              = aws_rds_global_cluster.capstone-global-cluster.engine
@@ -141,7 +141,6 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
   engine                    = aws_rds_global_cluster.capstone-global-cluster.engine
   engine_version            = aws_rds_global_cluster.capstone-global-cluster.engine_version
   global_cluster_identifier = aws_rds_global_cluster.capstone-global-cluster.id
-  database_name             = var.capstone_database_name
   db_subnet_group_name      = aws_db_subnet_group.dr-capstone-db-subnet-group.name
   vpc_security_group_ids    = [var.dr_capstone_db_security_group_id]
   skip_final_snapshot       = true
