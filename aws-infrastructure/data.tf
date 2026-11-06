@@ -40,3 +40,15 @@ data "terraform_remote_state" "legacy_network" {
     region = "ap-southeast-1"
   }
 }
+
+#===========================================================
+# References to remote terraform primary infrastructure
+#===========================================================
+data "terraform_remote_state" "primary_infrastructure" {
+  backend = "s3"
+  config = {
+    bucket = "capstone-terraform-state-249899229305-ap-southeast-1-an"
+    key    = "infras/primary/terraform.tfstate"
+    region = "ap-southeast-1"
+  }
+}
