@@ -65,3 +65,19 @@ resource "aws_secretsmanager_secret" "driver-bg-validator-secret" {
     var.secret_tags
   )
 }
+
+#==================================================================
+# Secrets of Aurora database credential
+#==================================================================
+resource "aws_secretsmanager_secret" "aurora-credential" {
+  name                    = "capstone/aurora/credential"
+  description             = "Aurora database credential"
+  recovery_window_in_days = 0
+
+  tags = merge(
+    {
+      Name = "capstone-aurora-credential"
+    },
+    var.secret_tags
+  )
+}
