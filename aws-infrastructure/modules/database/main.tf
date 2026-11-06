@@ -17,6 +17,15 @@ data "aws_availability_zones" "available" {
   }
 }
 
+# ============================
+# KMS Key for RDS on DR site
+# ============================
+data "aws_kms_key" "dr_rds" {
+  provider = aws.dr_site
+  key_id   = "alias/aws/rds"
+}
+
+
 # ===================================
 # DB subnet groups - Primary Site
 # ===================================
@@ -147,7 +156,7 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
 
   # Explicitly AWS-managed kms key for RDS in DR site
   storage_encrypted = true
-  kms_key_id        = "alias/aws/rds"
+  kms_key_id        = data.aws_kms_key.dr_rds.arn
 
   serverlessv2_scaling_configuration {
     max_capacity             = 2
