@@ -18,8 +18,13 @@ variable "capstone_database_name" {
   type        = string
 }
 
-variable "capstone_master_username" {
-  description = "Aurora master username"
+variable "aurora_credential_secret_arn" {
+  description = "Aurora credential secret ARN"
+  type        = string
+}
+
+variable "aurora_master_username" {
+  description = "Aurora database master username"
   type        = string
 }
 
