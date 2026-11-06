@@ -230,7 +230,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tfplan-artifact-${{ github.sha }}
-          path: .
+          path: aws-infrastructure
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
