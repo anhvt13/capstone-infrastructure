@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "bastion-iam-secret-value-access-policy-doc" {
     actions = [
       "secretsmanager:GetSecretValue"
     ]
-    resources = [var.db_secret_arn]
+    resources = var.db_secret_arn != null ? [var.db_secret_arn] : []
   }
 }
 
