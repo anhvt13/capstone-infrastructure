@@ -89,6 +89,7 @@ resource "aws_rds_cluster" "capstone-cluster" {
     min_capacity             = 0.5
     seconds_until_auto_pause = 900
   }
+  apply_immediately = true
 
   tags = merge(
     {
