@@ -50,7 +50,7 @@ resource "aws_rds_global_cluster" "capstone-global-cluster" {
   engine_version            = var.aurora_engine_version
   database_name             = var.capstone_database_name
   storage_encrypted         = true
-  deletion_protection       = true
+  deletion_protection       = false
 }
 
 # ========================
@@ -135,7 +135,7 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
   global_cluster_identifier   = aws_rds_global_cluster.capstone-global-cluster.id
   database_name               = var.capstone_database_name
   master_username             = var.capstone_master_username
-  manage_master_user_password = true
+  # manage_master_user_password = true
   db_subnet_group_name        = aws_db_subnet_group.dr-capstone-db-subnet-group.name
   vpc_security_group_ids      = [var.dr_capstone_db_security_group_id]
   skip_final_snapshot         = true
