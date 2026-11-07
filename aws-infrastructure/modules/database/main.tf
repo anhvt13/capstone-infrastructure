@@ -156,7 +156,7 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
   skip_final_snapshot       = true
 
   # Source Region for encrypted cross-region creation
-  source_region = var.aws_region
+  source_region = "ap-southeast-1"
 
   # Explicitly AWS-managed kms key for RDS in DR site
   storage_encrypted = true
