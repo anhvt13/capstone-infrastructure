@@ -1,3 +1,8 @@
+variable "aws_region" {
+  description = "Targeted AWS region"
+  type        = string
+}
+
 variable "database_tags" {
   description = "Common tags applied to all database resources"
   type        = map(string)

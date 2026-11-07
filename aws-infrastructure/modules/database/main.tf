@@ -155,6 +155,9 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
   vpc_security_group_ids    = [var.dr_capstone_db_security_group_id]
   skip_final_snapshot       = true
 
+  # Source Region for encrypted cross-region creation
+  source_region = var.aws_region
+
   # Explicitly AWS-managed kms key for RDS in DR site
   storage_encrypted = true
   kms_key_id        = data.aws_kms_key.dr_rds.arn
@@ -177,6 +180,7 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
 # (DR) Primary instance
 # =====================
 resource "aws_rds_cluster_instance" "dr-capstone-primary-instance" {
+  provider            = aws.dr_site
   identifier          = "dr-capstone-primary-instance"
   cluster_identifier  = aws_rds_cluster.dr-capstone-cluster.id
   instance_class      = "db.serverless"
@@ -197,6 +201,7 @@ resource "aws_rds_cluster_instance" "dr-capstone-primary-instance" {
 # (DR) Replica instance
 # ===============================
 resource "aws_rds_cluster_instance" "dr-capstone-replica-instance" {
+  provider            = aws.dr_site
   identifier          = "dr-capstone-replica-instance"
   cluster_identifier  = aws_rds_cluster.dr-capstone-cluster.id
   instance_class      = "db.serverless"
