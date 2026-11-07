@@ -89,6 +89,7 @@ module "database" {
   capstone_db_subnet_ids           = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_ids
   dr_capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_sg_id
   dr_capstone_db_subnet_ids        = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_ids
+  aws_region                       = var.aws_region
   database_tags                    = var.database_tags
 
 }
