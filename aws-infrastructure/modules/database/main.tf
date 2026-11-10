@@ -193,7 +193,7 @@ resource "aws_rds_cluster_instance" "dr-capstone-primary-instance" {
   engine              = aws_rds_global_cluster.capstone-global-cluster.engine
   engine_version      = aws_rds_global_cluster.capstone-global-cluster.engine_version
   publicly_accessible = false
-  availability_zone   = aws_rds_cluster.dr-capstone-cluster.availability_zones[0]
+  availability_zone   = tolist(aws_rds_cluster.dr-capstone-cluster.availability_zones)[0]
 
   tags = merge(
     {
@@ -214,7 +214,7 @@ resource "aws_rds_cluster_instance" "dr-capstone-replica-instance" {
   engine              = aws_rds_global_cluster.capstone-global-cluster.engine
   engine_version      = aws_rds_global_cluster.capstone-global-cluster.engine_version
   publicly_accessible = false
-  availability_zone   = aws_rds_cluster.dr-capstone-cluster.availability_zones[1]
+  availability_zone   = tolist(aws_rds_cluster.dr-capstone-cluster.availability_zones)[1]
 
   # Higher numbers mean lower priority. If the writer fails, AWS prefers lower tiers (1) to become the new primary.
   promotion_tier = 1
