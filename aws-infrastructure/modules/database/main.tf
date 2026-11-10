@@ -161,12 +161,18 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
   # Explicitly AWS-managed kms key for RDS in DR site
   storage_encrypted = true
   kms_key_id        = data.aws_kms_key.dr_rds.arn
+  apply_immediately = true
 
   serverlessv2_scaling_configuration {
     max_capacity             = 2
     min_capacity             = 0.5
     seconds_until_auto_pause = 900
   }
+
+  depends_on = [
+    aws_rds_global_cluster.capstone-global-cluster,
+    aws_rds_cluster.capstone-cluster,
+  ]
 
   tags = merge(
     {
