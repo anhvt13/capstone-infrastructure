@@ -120,7 +120,7 @@ variable "capstone_db_schema_bucket_name" {
 variable "driver_service_ecr_uri" {
   description = "Driver service image URI from ECR"
   type        = string
-  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:f677245a132c4773681106600fd4dfd38b003ad7"
+  default     = "249899229305.dkr.ecr.ap-southeast-1.amazonaws.com/capstone/driver-service:80b83ac9a480ccbfaad3de1f464cb682373b5874"
 }
 
 variable "bff_client_ecr_uri" {
