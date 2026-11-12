@@ -228,5 +228,47 @@ resource "aws_rds_cluster_instance" "dr-capstone-replica-instance" {
 }
 
 
+#================================================================
+# RDS Proxy Role - Initial ONLY ONCE on primary site deployment
+#================================================================
+data "aws_iam_policy_document" "rds_proxy_trust_policy" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["rds.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "rds_proxy_access_secrets" {
+  statement {
+    sid    = "AccessRDSecretCredentials"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+    resources = [var.aurora_credential_secret_arn]
+  }
+}
+
+resource "aws_iam_policy" "capstone-rds-secret-access-policy" {
+  name        = "capstone-rds-secret-access-policy"
+  description = "Capstone RDS secret credentials access policy"
+  policy      = data.aws_iam_policy_document.rds_proxy_access_secrets.json
+}
+
+
+resource "aws_iam_role" "rds-proxy-role" {
+  name               = "rds-proxy-role"
+  assume_role_policy = data.aws_iam_policy_document.rds_proxy_trust_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "rds-proxy-role-secret-access-policy-attachment" {
+  role       = aws_iam_role.rds-proxy-role.name
+  policy_arn = aws_iam_policy.capstone-rds-secret-access-policy.arn
+}
+
 
 
