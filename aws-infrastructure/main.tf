@@ -34,7 +34,7 @@ locals {
     capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.capstone_db_sg_id
   }
 
-  capstone_aurora_cluster_identifier = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure[0].outputs.dr_capstone_aurora_cluster_identifier : one(module.database[*].capstone_aurora_cluster_identifier)
+  capstone_aurora_cluster_identifier = var.enabled_dr ? one(module.database[*].dr_capstone_aurora_cluster_identifier) : one(module.database[*].capstone_aurora_cluster_identifier)
 }
 
 # ====================
@@ -91,7 +91,6 @@ module "database" {
   dr_capstone_db_subnet_ids        = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_ids
   aws_region                       = var.aws_region
   database_tags                    = var.database_tags
-
 }
 
 # =====================
@@ -234,11 +233,12 @@ module "edge_authenticate_function" {
 module "db-proxy" {
   source = "./modules/db-proxy"
 
-  rds_secret_arn                       = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
   database_tags                        = var.database_tags
   capstone_db_subnet_ids               = local.network_outputs.capstone_db_subnet_ids
   capstone_rds_proxy_security_group_id = module.security.capstone_rds_proxy_security_group_id
   capstone_aurora_cluster_identifier   = local.capstone_aurora_cluster_identifier
+  aurora_credential_secret_arn         = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
+  rds_proxy_role_arn                   = one(module.database[*].rds_proxy_role_arn)
 
   depends_on = [module.database]
 }

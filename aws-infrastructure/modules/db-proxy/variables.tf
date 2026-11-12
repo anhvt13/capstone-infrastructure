@@ -1,5 +1,5 @@
-variable "rds_secret_arn" {
-  description = "ARN of Aurora secret credentials"
+variable "aurora_credential_secret_arn" {
+  description = "Aurora credentials secret ARN"
   type        = string
 }
 
@@ -20,5 +20,10 @@ variable "capstone_rds_proxy_security_group_id" {
 
 variable "capstone_aurora_cluster_identifier" {
   description = "Capstone aurora cluster identifier"
+  type        = string
+}
+
+variable "rds_proxy_role_arn" {
+  description = "RDS Proxy IAM role"
   type        = string
 }
