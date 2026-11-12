@@ -34,7 +34,8 @@ locals {
     capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.capstone_db_sg_id
   }
 
-  capstone_aurora_cluster_identifier = var.enabled_dr ? one(module.database[*].dr_capstone_aurora_cluster_identifier) : one(module.database[*].capstone_aurora_cluster_identifier)
+  capstone_aurora_cluster_identifier = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure[0].outputs.dr_capstone_aurora_cluster_identifier : one(module.database[*].capstone_aurora_cluster_identifier)
+  rds_proxy_role_arn                 = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure[0].outputs.rds_proxy_role_arn : one(module.database[*].rds_proxy_role_arn)
 }
 
 # ====================
@@ -238,7 +239,7 @@ module "db-proxy" {
   capstone_rds_proxy_security_group_id = module.security.capstone_rds_proxy_security_group_id
   capstone_aurora_cluster_identifier   = local.capstone_aurora_cluster_identifier
   aurora_credential_secret_arn         = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
-  rds_proxy_role_arn                   = one(module.database[*].rds_proxy_role_arn)
+  rds_proxy_role_arn                   = local.rds_proxy_role_arn
 
   depends_on = [module.database]
 }
