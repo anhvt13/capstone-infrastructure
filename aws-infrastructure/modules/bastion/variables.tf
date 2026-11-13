@@ -33,12 +33,7 @@ variable "ami-id" {
   type        = string
 }
 
-variable "db_secret_arn" {
-  description = "ARN of the Secrets Manager secret containing the Aurora master credentials"
-  type        = string
-}
-
-variable "capstone-db-schema-bucket-arn" {
-  description = "ARN of capstone db schema bucket"
+variable "bastion_instance_profile_name" {
+  description = "Bastion instance profile name"
   type        = string
 }

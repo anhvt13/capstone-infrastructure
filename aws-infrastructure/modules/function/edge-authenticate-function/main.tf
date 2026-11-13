@@ -1,35 +1,8 @@
-resource "aws_iam_role" "cognito-jwt-edge-auth-execution-role" {
-  provider = aws.us_east_1
-  name     = "cognito-jwt-edge-auth-execution-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = [
-            "lambda.amazonaws.com",
-            "edgelambda.amazonaws.com"
-          ]
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "cognito-jwt-edge-auth-role-policy" {
-  provider   = aws.us_east_1
-  role       = aws_iam_role.cognito-jwt-edge-auth-execution-role.id
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-
 resource "aws_lambda_function" "cognito-jwt-edge-auth-function" {
   provider         = aws.us_east_1
   function_name    = "cognito-jwt-edge-auth-function"
   description      = "Validate Amazon Cognito access tokens before CloudFront cache lookup"
-  role             = aws_iam_role.cognito-jwt-edge-auth-execution-role.arn
+  role             = var.cognito-jwt-edge-auth-execution-role_arn
   runtime          = "nodejs22.x"
   handler          = "index.handler"
   filename         = "${path.module}/cognito-jwt-edge-auth-function.zip"

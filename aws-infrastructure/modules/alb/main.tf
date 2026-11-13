@@ -106,25 +106,3 @@ resource "aws_lb_listener_rule" "alb_production_listener_rule" {
   }
 }
 
-# ===========================================
-# ECS assume role on ALB management
-# ===========================================
-
-resource "aws_iam_role" "ecs-invoke-alb-infras-role" {
-  name = "ecs-invoke-alb-infras-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs.amazonaws.com"
-      }
-      Action = "sts:AssumeRole"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs-invoke-alb-infras-role-policy" {
-  role       = aws_iam_role.ecs-invoke-alb-infras-role.id
-  policy_arn = "arn:aws:iam::aws:policy/AmazonECSInfrastructureRolePolicyForLoadBalancers"
-}

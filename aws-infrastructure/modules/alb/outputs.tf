@@ -13,11 +13,6 @@ output "capstone_alb_dns" {
   value       = aws_lb.capstone-alb.dns_name
 }
 
-output "ecs_invoke_alb_infras_role_arn" {
-  description = "ECS assume role on ALB infrastructure"
-  value       = aws_iam_role.ecs-invoke-alb-infras-role.arn
-}
-
 output "alb_production_listener_rule_arn" {
   description = "ARN of production listener rule ALB"
   value       = aws_lb_listener_rule.alb_production_listener_rule.arn
