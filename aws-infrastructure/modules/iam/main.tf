@@ -63,7 +63,7 @@ data "aws_iam_policy_document" "allow-access-from-bastion-host" {
     principals {
       type = "AWS"
       identifiers = [
-        aws_iam_role.capstone-bastion-ssm-role.name
+        aws_iam_role.capstone-bastion-ssm-role.arn
       ]
     }
     actions = [
