@@ -169,6 +169,12 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
     seconds_until_auto_pause = 900
   }
 
+  lifecycle {
+    ignore_changes = [
+      replication_source_identifier
+    ]
+  }
+
   depends_on = [
     aws_rds_global_cluster.capstone-global-cluster,
     aws_rds_cluster.capstone-cluster,
