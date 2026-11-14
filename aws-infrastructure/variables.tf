@@ -209,11 +209,11 @@ variable "aurora_engine_version" {
 variable "driver_blue_green_hook_function" {
   description = "Driver blue/green lambda hook function name on Primary site"
   type        = string
-  default     = "driver_blue_green_hook_function"
+  default     = "driver-blue-green-hook-function"
 }
 
 variable "dr_driver_blue_green_hook_function" {
   description = "Driver blue/green lambda hook function name on DR site"
   type        = string
-  default     = "dr_driver_blue_green_hook_function"
+  default     = "dr-driver-blue-green-hook-function"
 }
