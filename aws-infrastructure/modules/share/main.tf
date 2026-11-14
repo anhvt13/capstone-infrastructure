@@ -124,31 +124,6 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 }
 
 # ===========================================
-# Bastion IAM base policy access secret value
-# ===========================================
-# data "aws_iam_policy_document" "bastion-iam-secret-value-access-policy-doc" {
-#   statement {
-#     sid    = "AccessSecretValue"
-#     effect = "Allow"
-#     actions = [
-#       "secretsmanager:GetSecretValue"
-#     ]
-#     resources = [var.db_secret_arn]
-#   }
-# }
-
-# resource "aws_iam_policy" "bastion-identity-secret-value-access-policy" {
-#   name        = "bastion-identity-secret-value-access-policy"
-#   description = "Identity based policy to access secret value from secret manager"
-#   policy      = data.aws_iam_policy_document.bastion-iam-secret-value-access-policy-doc.json
-# }
-
-# resource "aws_iam_role_policy_attachment" "bastion-iam-secret-value-access-policy-attach" {
-#   role       = aws_iam_role.capstone-bastion-ssm-role.name
-#   policy_arn = aws_iam_policy.bastion-identity-secret-value-access-policy.arn
-# }
-
-# ===========================================
 # Bastion IAM base policy describe ecs task
 # ===========================================
 data "aws_iam_policy_document" "bastion-iam-describe-task-policy-doc" {
