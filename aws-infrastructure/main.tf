@@ -42,6 +42,7 @@ locals {
   cognito-jwt-edge-auth-execution-role_arn   = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure[0].outputs.cognito-jwt-edge-auth-execution-role_arn[0] : one(module.iam[*].cognito-jwt-edge-auth-execution-role_arn)
   driver_blue_green_hook_ecs_assume_role_arn = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure[0].outputs.driver_blue_green_hook_ecs_assume_role_arn[0] : one(module.iam[*].driver_blue_green_hook_ecs_assume_role_arn)
   ecs_invoke_alb_infras_role_arn             = var.enabled_dr ? data.terraform_remote_state.primary_infrastructure[0].outputs.ecs_invoke_alb_infras_role_arn[0] : one(module.iam[*].ecs_invoke_alb_infras_role_arn)
+  driver_blue_green_hook_function_name       = var.enabled_dr ? var.dr_driver_blue_green_hook_function : var.driver_blue_green_hook_function
 }
 
 # =================
@@ -146,8 +147,10 @@ module "driver_blue_green_hook" {
   driver_bg_validator_secret_arn                 = data.terraform_remote_state.secrets.outputs.driver_bg_validator_secret_arn
   driver_blue_green_hook_ecs_assume_role_id      = local.driver_blue_green_hook_ecs_assume_role_id
   driver_blue_green_hook_execution_role_arn      = local.driver_blue_green_hook_execution_role_arn
+  driver_blue_green_hook_function_name           = local.driver_blue_green_hook_function_name
 
   depends_on = [module.iam]
+
 }
 
 # =====================
