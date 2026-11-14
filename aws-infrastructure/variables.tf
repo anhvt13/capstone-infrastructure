@@ -205,3 +205,15 @@ variable "aurora_engine_version" {
   type        = string
   default     = "18.6"
 }
+
+variable "driver_blue_green_hook_function" {
+  description = "Driver blue/green lambda hook function name on Primary site"
+  type        = string
+  default     = "driver_blue_green_hook_function"
+}
+
+variable "dr_driver_blue_green_hook_function" {
+  description = "Driver blue/green lambda hook function name on DR site"
+  type        = string
+  default     = "dr_driver_blue_green_hook_function"
+}

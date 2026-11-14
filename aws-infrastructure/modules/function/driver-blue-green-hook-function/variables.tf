@@ -22,3 +22,8 @@ variable "driver_blue_green_hook_execution_role_arn" {
   description = "ARN of driver blue green hook execution role"
   type        = string
 }
+
+variable "driver_blue_green_hook_function_name" {
+  description = "Driver blue/green lambda hook function name"
+  type        = string
+}

@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "driver-blue-green-hook-function" {
-  function_name    = "driver-blue-green-hook-function"
+  function_name    = var.driver_blue_green_hook_function_name
   description      = "Driver blue/green lifecycle deployment function hook"
   role             = var.driver_blue_green_hook_execution_role_arn
   runtime          = "nodejs22.x"
