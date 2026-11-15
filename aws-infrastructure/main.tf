@@ -253,7 +253,7 @@ module "edge_authenticate_function" {
   }
 
   cognito_jwt_edge_auth_execution_role_arn = one(module.share[*].cognito_jwt_edge_auth_execution_role_arn)
-  depends_on = [module.share]
+  depends_on                               = [module.share]
 }
 
 # ====================
