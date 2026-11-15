@@ -2,9 +2,9 @@
 # CAPSTONE INFRASTRUCTURE
 # =========================
 
-# ====================
-# Local variables
-# ====================
+# ================================================
+# Local variables - Rendered by region flipped
+# ================================================
 locals {
   share_resources = var.enabled_dr ? {
     capstone_vpc_id               = data.terraform_remote_state.legacy_network.outputs.dr_capstone_vpc_id
@@ -20,15 +20,18 @@ locals {
     capstone_db_subnet_ids        = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_subnet_ids
     capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.dr_capstone_db_sg_id
 
-    capstone_aurora_cluster_identifier         = data.terraform_remote_state.primary_infrastructure[0].outputs.dr_capstone_aurora_cluster_identifier[0]
-    rds_proxy_role_arn                         = data.terraform_remote_state.primary_infrastructure[0].outputs.rds_proxy_role_arn[0]
-    bastion_instance_profile_name              = data.terraform_remote_state.primary_infrastructure[0].outputs.bastion_instance_profile_name[0]
-    driver_blue_green_hook_ecs_assume_role_id  = data.terraform_remote_state.primary_infrastructure[0].outputs.driver_blue_green_hook_ecs_assume_role_id[0]
-    driver_blue_green_hook_execution_role_arn  = data.terraform_remote_state.primary_infrastructure[0].outputs.driver_blue_green_hook_execution_role_arn[0]
-    cognito-jwt-edge-auth-execution-role_arn   = data.terraform_remote_state.primary_infrastructure[0].outputs.cognito-jwt-edge-auth-execution-role_arn[0]
-    driver_blue_green_hook_ecs_assume_role_arn = data.terraform_remote_state.primary_infrastructure[0].outputs.driver_blue_green_hook_ecs_assume_role_arn[0]
-    ecs_invoke_alb_infras_role_arn             = data.terraform_remote_state.primary_infrastructure[0].outputs.ecs_invoke_alb_infras_role_arn[0]
-    driver_blue_green_hook_function_name       = var.dr_driver_blue_green_hook_function
+    capstone_aurora_cluster_identifier           = data.terraform_remote_state.primary_infrastructure[0].outputs.dr_capstone_aurora_cluster_identifier[0]
+    rds_proxy_role_arn                           = data.terraform_remote_state.primary_infrastructure[0].outputs.rds_proxy_role_arn[0]
+    bastion_instance_profile_name                = data.terraform_remote_state.primary_infrastructure[0].outputs.bastion_instance_profile_name[0]
+    driver_blue_green_hook_ecs_assume_role_id    = data.terraform_remote_state.primary_infrastructure[0].outputs.driver_blue_green_hook_ecs_assume_role_id[0]
+    driver_blue_green_hook_execution_role_arn    = data.terraform_remote_state.primary_infrastructure[0].outputs.driver_blue_green_hook_execution_role_arn[0]
+    cognito_jwt_edge_auth_execution_role_arn     = data.terraform_remote_state.primary_infrastructure[0].outputs.cognito_jwt_edge_auth_execution_role_arn
+    driver_blue_green_hook_ecs_assume_role_arn   = data.terraform_remote_state.primary_infrastructure[0].outputs.driver_blue_green_hook_ecs_assume_role_arn[0]
+    ecs_invoke_alb_infras_role_arn               = data.terraform_remote_state.primary_infrastructure[0].outputs.ecs_invoke_alb_infras_role_arn[0]
+    driver_blue_green_hook_function_name         = var.dr_driver_blue_green_hook_function
+    capstone_ecs_task_execution_role_arn         = data.terraform_remote_state.primary_infrastructure[0].outputs.capstone_ecs_task_execution_role_arn[0]
+    capstone_ecs_task_role_arn                   = data.terraform_remote_state.primary_infrastructure[0].outputs.capstone_ecs_task_role_arn[0]
+    cognito_jwt_edge_auth_function_qualified_arn = data.terraform_remote_state.primary_infrastructure[0].outputs.cognito_jwt_edge_auth_function_qualified_arn[0]
     } : {
     capstone_vpc_id               = data.terraform_remote_state.legacy_network.outputs.capstone_vpc_id
     capstone_vpc_cidr_block       = data.terraform_remote_state.legacy_network.outputs.capstone_vpc_cidr_block
@@ -43,15 +46,18 @@ locals {
     capstone_db_subnet_ids        = data.terraform_remote_state.legacy_network.outputs.capstone_db_subnet_ids
     capstone_db_security_group_id = data.terraform_remote_state.legacy_network.outputs.capstone_db_sg_id
 
-    capstone_aurora_cluster_identifier         = one(module.database[*].capstone_aurora_cluster_identifier)
-    rds_proxy_role_arn                         = one(module.database[*].rds_proxy_role_arn)
-    bastion_instance_profile_name              = one(module.share[*].bastion_instance_profile_name)
-    driver_blue_green_hook_ecs_assume_role_id  = one(module.share[*].driver_blue_green_hook_ecs_assume_role_id)
-    driver_blue_green_hook_execution_role_arn  = one(module.share[*].driver_blue_green_hook_execution_role_arn)
-    cognito-jwt-edge-auth-execution-role_arn   = one(module.share[*].cognito-jwt-edge-auth-execution-role_arn)
-    driver_blue_green_hook_ecs_assume_role_arn = one(module.share[*].driver_blue_green_hook_ecs_assume_role_arn)
-    ecs_invoke_alb_infras_role_arn             = one(module.share[*].ecs_invoke_alb_infras_role_arn)
-    driver_blue_green_hook_function_name       = var.driver_blue_green_hook_function
+    capstone_aurora_cluster_identifier           = one(module.database[*].capstone_aurora_cluster_identifier)
+    rds_proxy_role_arn                           = one(module.database[*].rds_proxy_role_arn)
+    bastion_instance_profile_name                = one(module.share[*].bastion_instance_profile_name)
+    driver_blue_green_hook_ecs_assume_role_id    = one(module.share[*].driver_blue_green_hook_ecs_assume_role_id)
+    driver_blue_green_hook_execution_role_arn    = one(module.share[*].driver_blue_green_hook_execution_role_arn)
+    cognito_jwt_edge_auth_execution_role_arn     = one(module.share[*].cognito_jwt_edge_auth_execution_role_arn)
+    driver_blue_green_hook_ecs_assume_role_arn   = one(module.share[*].driver_blue_green_hook_ecs_assume_role_arn)
+    ecs_invoke_alb_infras_role_arn               = one(module.share[*].ecs_invoke_alb_infras_role_arn)
+    driver_blue_green_hook_function_name         = var.driver_blue_green_hook_function
+    capstone_ecs_task_execution_role_arn         = one(module.share[*].capstone_ecs_task_execution_role_arn)
+    capstone_ecs_task_role_arn                   = one(module.share[*].capstone_ecs_task_role_arn)
+    cognito_jwt_edge_auth_function_qualified_arn = one(module.edge_authenticate_function[*].cognito_jwt_edge_auth_function_qualified_arn)
   }
 }
 
@@ -89,10 +95,10 @@ module "security" {
   security_tags                  = var.security_tags
 }
 
-# ===============================================================================
-# Initial ONLY ONCE on PRIMARY site deployment - Shared across multi-regions
-# Database module
-# ===============================================================================
+# =====================================================
+# Initial ONLY ONCE on Primary site deployment
+# Aurora Global Database
+# =====================================================
 module "database" {
   count  = !var.enabled_dr ? 1 : 0
   source = "./modules/database"
@@ -162,11 +168,7 @@ module "container" {
   primary_aws_region                         = var.aws_region
   database_name                              = var.database_name
   database_port                              = var.database_port
-  rds_secret_arn                             = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
-  bff_secret_arn                             = data.terraform_remote_state.secrets.outputs.bff_client_secret_arn
-  driver_service_secret_arn                  = data.terraform_remote_state.secrets.outputs.driver_service_secret_arn
   capstone_vpc_id                            = local.share_resources.capstone_vpc_id
-  bff_oauth2_secret_arn                      = data.terraform_remote_state.secrets.outputs.bff_oauth2_secret_arn
   ecs_desired_task                           = var.ecs_desired_task
   driver_blue_green_hook_function_arn        = module.driver_blue_green_hook.driver_blue_green_hook_function_arn
   driver_blue_green_hook_ecs_assume_role_arn = local.share_resources.driver_blue_green_hook_ecs_assume_role_arn
@@ -183,8 +185,15 @@ module "container" {
   driver_max_capacity                        = var.driver_max_capacity
   driver_min_capacity                        = var.driver_min_capacity
   capstone_rds_proxy_endpoint                = module.db-proxy.capstone_rds_proxy_endpoint
+  rds_secret_arn                             = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
+  bff_secret_arn                             = data.terraform_remote_state.secrets.outputs.bff_client_secret_arn
+  driver_service_secret_arn                  = data.terraform_remote_state.secrets.outputs.driver_service_secret_arn
+  bff_oauth2_secret_arn                      = data.terraform_remote_state.secrets.outputs.bff_oauth2_secret_arn
+  capstone_ecs_task_execution_role_arn       = local.share_resources.capstone_ecs_task_execution_role_arn
+  capstone_ecs_task_role_arn                 = local.share_resources.capstone_ecs_task_role_arn
 
   depends_on = [module.database, module.redis, module.driver_blue_green_hook, module.db-proxy, module.share]
+
 }
 
 # ===================
@@ -219,28 +228,32 @@ module "redis" {
   bastion_host_security_group_id     = module.bastion.bastion_host_security_group_id
 }
 
-# =====================
-# Cloudfront module
-# =====================
+# ================================================
+# Initial ONLY ONCE on Primary site deployment
+# Cloudfront module - Global scope
+# ================================================
 module "cloudfront" {
   source = "./modules/cdn"
 
   capstone_alb_dns                             = module.alb.capstone_alb_dns
   target_origin_id                             = var.target_origin_id
   cdn_tags                                     = var.cdn_tags
-  cognito_jwt_edge_auth_function_qualified_arn = module.edge_authenticate_function.cognito_jwt_edge_auth_function_qualified_arn
+  cognito_jwt_edge_auth_function_qualified_arn = local.share_resources.cognito_jwt_edge_auth_function_qualified_arn
 }
 
 # =====================================================
-# Cognito JWT token authenticate edge function module
+# Initial ONLY ONCE on Primary site deployment
+# Cognito JWT token authenticate lambda@edge function
 # =====================================================
 module "edge_authenticate_function" {
+  count  = !var.enabled_dr ? 1 : 0
   source = "./modules/function/edge-authenticate-function"
   providers = {
     aws.us_east_1 = aws.us_east_1
   }
 
-  cognito-jwt-edge-auth-execution-role_arn = local.share_resources.cognito-jwt-edge-auth-execution-role_arn
+  cognito_jwt_edge_auth_execution_role_arn = one(module.share[*].cognito_jwt_edge_auth_execution_role_arn)
+  depends_on = [module.share]
 }
 
 # ====================
@@ -259,10 +272,10 @@ module "db-proxy" {
   depends_on = [module.database]
 }
 
-# ==============================================================================
-# Initial ONLY ONCE on PRIMARY site deployment
+# ==================================================
+# Initial ONLY ONCE on Primary site deployment
 # Shared resources across multi-regions
-# ==============================================================================
+# ==================================================
 module "share" {
   count  = !var.enabled_dr ? 1 : 0
   source = "./modules/share"
@@ -273,4 +286,8 @@ module "share" {
   capstone_db_schema_bucket_name = var.capstone_db_schema_bucket_name
   storage_tags                   = var.storage_tags
   driver_bg_validator_secret_arn = data.terraform_remote_state.secrets.outputs.driver_bg_validator_secret_arn
+  rds_secret_arn                 = data.terraform_remote_state.secrets.outputs.aurora_credential_secret_arn
+  bff_secret_arn                 = data.terraform_remote_state.secrets.outputs.bff_client_secret_arn
+  driver_service_secret_arn      = data.terraform_remote_state.secrets.outputs.driver_service_secret_arn
+  bff_oauth2_secret_arn          = data.terraform_remote_state.secrets.outputs.bff_oauth2_secret_arn
 }

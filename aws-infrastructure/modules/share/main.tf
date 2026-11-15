@@ -307,6 +307,104 @@ resource "aws_iam_role_policy_attachment" "cognito-jwt-edge-auth-role-policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+#========================
+# ECS Task Execution Role
+#========================
+resource "aws_iam_role" "capstone-ecs-task-execution-role" {
+  name = "capstone-ecs-task-execution-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "capstone-ecs-task-execution-role-attach-policy" {
+  role       = aws_iam_role.capstone-ecs-task-execution-role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+data "aws_iam_policy_document" "ecs-iam-access-policy-doc" {
+  statement {
+    sid    = "ListObjectsInBucket"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+    resources = [
+      var.driver_service_secret_arn,
+      var.rds_secret_arn,
+      var.bff_secret_arn,
+      var.bff_oauth2_secret_arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "capstone-ecs-execution-role-secret-access-policy" {
+  name        = "capstone-ecs-execution-role-secret-access-policy"
+  description = "ECS secret access policy"
+  policy      = data.aws_iam_policy_document.ecs-iam-access-policy-doc.json
+}
+
+resource "aws_iam_role_policy_attachment" "capstone-ecs-execution-role-secret-access" {
+  role       = aws_iam_role.capstone-ecs-task-execution-role.name
+  policy_arn = aws_iam_policy.capstone-ecs-execution-role-secret-access-policy.arn
+}
+
+#====================
+# ECS task role
+#====================
+resource "aws_iam_role" "capstone-ecs-task-role" {
+  name = "capstone-ecs-task-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+#===================================================
+# ECS task role assign SSM Messages permissions
+#===================================================
+data "aws_iam_policy_document" "ecs-ssm-message-exec-policy-doc" {
+  statement {
+    sid    = "ExecSSMMessage"
+    effect = "Allow"
+    actions = [
+      "ssmmessages:CreateControlChannel",
+      "ssmmessages:CreateDataChannel",
+      "ssmmessages:OpenControlChannel",
+      "ssmmessages:OpenDataChannel"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "capstone-ecs-execution-role-ssm-message-exec-policy" {
+  name        = "capstone-ecs-execution-role-ssm-message-exec-policy"
+  description = "ECS execute ssm message policy"
+  policy      = data.aws_iam_policy_document.ecs-ssm-message-exec-policy-doc.json
+}
+
+resource "aws_iam_role_policy_attachment" "capstone-ecs-execution-ssm-message-role" {
+  role       = aws_iam_role.capstone-ecs-task-role.name
+  policy_arn = aws_iam_policy.capstone-ecs-execution-role-ssm-message-exec-policy.arn
+}
+
 
 
 

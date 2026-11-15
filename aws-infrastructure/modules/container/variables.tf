@@ -33,11 +33,6 @@ variable "primary_aws_region" {
   type        = string
 }
 
-variable "driver_service_secret_arn" {
-  description = "ARN of driver service secret"
-  type        = string
-}
-
 variable "database_port" {
   description = "Database port number"
   type        = number
@@ -45,21 +40,6 @@ variable "database_port" {
 
 variable "database_name" {
   description = "Database name"
-  type        = string
-}
-
-variable "bff_secret_arn" {
-  description = "ARN of bff secret"
-  type        = string
-}
-
-variable "bff_oauth2_secret_arn" {
-  description = "ARN of bff OAuth2 secret manager"
-  type        = string
-}
-
-variable "rds_secret_arn" {
-  description = "ARN of rds secret manager"
   type        = string
 }
 
@@ -145,5 +125,35 @@ variable "driver_cpu_target" {
 
 variable "capstone_rds_proxy_endpoint" {
   description = "Capstone RDS proxy endpoint"
+  type        = string
+}
+
+variable "driver_service_secret_arn" {
+  description = "ARN of driver service secret"
+  type        = string
+}
+
+variable "bff_secret_arn" {
+  description = "ARN of bff secret"
+  type        = string
+}
+
+variable "bff_oauth2_secret_arn" {
+  description = "ARN of bff OAuth2 secret manager"
+  type        = string
+}
+
+variable "rds_secret_arn" {
+  description = "ARN of rds secret manager"
+  type        = string
+}
+
+variable "capstone_ecs_task_execution_role_arn" {
+  description = "ECS task execution role's ARN"
+  type        = string
+}
+
+variable "capstone_ecs_task_role_arn" {
+  description = "ECS task role's ARN"
   type        = string
 }
