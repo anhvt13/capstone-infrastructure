@@ -2,7 +2,7 @@ resource "aws_lambda_function" "cognito-jwt-edge-auth-function" {
   provider         = aws.us_east_1
   function_name    = "cognito-jwt-edge-auth-function"
   description      = "Validate Amazon Cognito access tokens before CloudFront cache lookup"
-  role             = var.cognito-jwt-edge-auth-execution-role_arn
+  role             = var.cognito_jwt_edge_auth_execution_role_arn
   runtime          = "nodejs22.x"
   handler          = "index.handler"
   filename         = "${path.module}/cognito-jwt-edge-auth-function.zip"

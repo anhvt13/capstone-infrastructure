@@ -43,7 +43,22 @@ output "driver_blue_green_hook_ecs_assume_role_arn" {
   value       = module.share[*].driver_blue_green_hook_ecs_assume_role_arn
 }
 
-output "cognito-jwt-edge-auth-execution-role_arn" {
+output "cognito_jwt_edge_auth_execution_role_arn" {
   description = "ARN of jwt authenticate lambda@edge execution role"
-  value       = module.share[*].cognito-jwt-edge-auth-execution-role_arn
+  value       = one(module.share[*].cognito_jwt_edge_auth_execution_role_arn)
+}
+
+output "capstone_ecs_task_execution_role_arn" {
+  description = "ECS task execution role's ARN"
+  value       = module.share[*].capstone_ecs_task_execution_role_arn
+}
+
+output "capstone_ecs_task_role_arn" {
+  description = "ECS task role's ARN"
+  value       = module.share[*].capstone_ecs_task_role_arn
+}
+
+output "cognito_jwt_edge_auth_function_qualified_arn" {
+  description = "Specific published version ARN of jwt authenticate lambda edge"
+  value       = module.edge_authenticate_function[*].cognito_jwt_edge_auth_function_qualified_arn
 }

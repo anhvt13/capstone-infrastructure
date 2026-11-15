@@ -33,7 +33,17 @@ output "driver_blue_green_hook_ecs_assume_role_arn" {
   value       = aws_iam_role.driver-blue-green-hook-ecs-assume-role.arn
 }
 
-output "cognito-jwt-edge-auth-execution-role_arn" {
+output "cognito_jwt_edge_auth_execution_role_arn" {
   description = "ARN of jwt authenticate lambda@edge execution role"
   value       = aws_iam_role.cognito-jwt-edge-auth-execution-role.arn
+}
+
+output "capstone_ecs_task_execution_role_arn" {
+  description = "ECS task execution role's ARN"
+  value       = aws_iam_role.capstone-ecs-task-execution-role.arn
+}
+
+output "capstone_ecs_task_role_arn" {
+  description = "ECS task role's ARN"
+  value       = aws_iam_role.capstone-ecs-task-role.arn
 }
