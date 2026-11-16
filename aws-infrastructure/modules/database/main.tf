@@ -85,7 +85,7 @@ resource "aws_rds_cluster" "capstone-cluster" {
   vpc_security_group_ids     = [var.capstone_db_security_group_id]
   skip_final_snapshot        = true
   serverlessv2_scaling_configuration {
-    max_capacity             = 2
+    max_capacity             = 1
     min_capacity             = 0.5
     seconds_until_auto_pause = 900
   }
@@ -164,7 +164,7 @@ resource "aws_rds_cluster" "dr-capstone-cluster" {
   apply_immediately = true
 
   serverlessv2_scaling_configuration {
-    max_capacity             = 2
+    max_capacity             = 1
     min_capacity             = 0.5
     seconds_until_auto_pause = 900
   }
