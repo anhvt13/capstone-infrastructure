@@ -32,6 +32,13 @@ Architecture Style: Microservices, API Gateway Pattern, Multi-Region Disaster Re
  - Design a multi-region disaster recovery solution.
  - Evaluate architecture decisions through technical trade-off analysis.
 
+### Feature
+ - View Drivers - List all drivers with team
+ - Add Driver - Create new driver record
+ - Delete Driver - Remove driver record
+ - Update Driver  - Modify driver record
+
+
 ### Technology Stack
 The platform is built using a layered architecture, combining Spring Boot microservices, AWS managed services, Infrastructure as Code, and automated CI/CD pipelines.
 
@@ -58,14 +65,15 @@ The platform is built using a layered architecture, combining Spring Boot micros
 
 
 #### Identity and Security
-| Technology          | Purpose                                                                     |
-|---------------------|-----------------------------------------------------------------------------|
-| Amazon Cognito      | Identity management, user authentication, and token issuance                |
-| JWT                 | Stateless authentication and identity propagation                           |
-| Lambda@Edge         | JWT validation at the CloudFront edge before requests reach the application |
-| AWS Secrets Manager | Secure storage and retrieval of credentials and sensitive configuration     |
-| AWS IAM             | Fine-grained access control for AWS resources and application workloads     |
-| IAM Roles           | Grant AWS permissions to application containers without static credentials  |
+| Technology           | Purpose                                                                    |
+|----------------------|----------------------------------------------------------------------------|
+| Spring Security      | Application-level authentication and authorization framework               |
+| Amazon Cognito       | Identity management, user authentication, and token issuance               |
+| JSON Web Token (JWT) | Carries signed authentication and authorization claims                     |
+| Lambda@Edge          | Performs JWT validation at the CloudFront edge                             |
+| AWS Secrets Manager  | Secure storage and retrieval of credentials and sensitive configuration    |
+| AWS IAM              | Fine-grained access control for AWS resources and application workloads    |
+| IAM Roles            | Grant AWS permissions to application containers without static credentials |
 
 #### Data Layer
 | Technology               | Purpose                                                                                               |
@@ -135,13 +143,57 @@ The platform is built using a layered architecture, combining Spring Boot micros
 | Amazon SNS             | Sends operator notifications and disaster recovery alerts                                  |
 
 
-## Project Architecture
+## Project Architecture Overview
 
 ![Project Architecture Diagram](images/Capstone-Architecting.jpg)
 
+### Microservices Architecture
+ - The application follows a microservices architecture in which application capabilities are separated into independently deployable Spring Boot services.
+ - Instead of exposing every backend service directly to external clients, the platform uses a Backend-for-Frontend (BFF) service as the primary application entry point.
+ - The BFF coordinates incoming client requests and communicates with internal services through private service-to-service connectivity.
+#### BFF-service
+ - Repository https://github.com/anhvt13/capstone-bff-client
+ - Responsibility
+   - Exposing client-facing REST APIs
+   - Validating incoming requests
+   - Coordinating calls to internal microservices
+   - Aggregating responses from backend services  
+ - Design Consideration  
+    - Keep the BFF focused on client-facing orchestration  
+    - Avoid implementing business logic that belongs to domain services  
+    - Avoid direct database access where data ownership belongs to another microservice  
+   
+#### Driver-service
+ - Repository: https://github.com/anhvt13/capstone-driver-service
+ - Responsibility
+   - Exposing internal REST APIs
+   - Encapsulates driver-related business operations
+   - Managing its database interactions
+ - Design Consideration
+   - Keep Driver business logic independent of the BFF
+   - Restrict access to internal network paths
+   - Authenticate and authorize service-to-service communication
+   - Maintain controlled database connection pooling
 
+#### Microservices Communication
+ - Decision made: BFF service communicates with Driver service through native ECS Service Connect connectivity
+ - Alternatives considered: 
+    - AWS Cloud Map for service discovery: DNS resolves the service name to task IPs -> DNS resolution could leads to stale addresses, does not support the traffic-distribution
+    - Internal ALB for traffic distribution -> introduce additional target group, health-check capabilities to maintain 
+ - Advantages: build-in services discovering and round-robin load balancing distribution without additional managed resources
+ - Disadvantages: introduces an additional managed sidecar proxy into ecs task's networking architecture
+ - Consequences: troubleshooting becomes more complicated
 
-
+### Authentication Architecture
+ - The project implements a centralized, token-based authentication architecture using OAuth 2.0, OpenID Connect (OIDC), Amazon Cognito, and Spring Security.
+ - Amazon Cognito acts as the centralized Identity Provider and Authorization Server, responsible for authenticating users and issuing access tokens and ID tokens. Spring Security integrates with Cognito to secure Spring Boot applications
+ - 
+#### Authentication Microservices
+ - The architecture adopts two OAuth 2.0 grant types to address different authentication requirements:
+ - Authorization Code Grant with JWT: Used for customer authentication when accessing the internet-facing application through the Backend-for-Frontend (BFF).
+ - Client Credentials Grant: Used for machine-to-machine authentication when the BFF communicates with internal microservices, such as the Driver service.
+ - 
+ ![Authentication Architecture Diagram](images/Capstone-Authentication.jpg)
 
 
 
