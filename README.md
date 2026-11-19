@@ -1,8 +1,7 @@
 # Cloud-Native Capstone Microservices
-***
 
 Project: Capstone  
-Architecture: Spring Boot Microservices on cloud-native infrastructure
+Architecture: Spring Boot Microservices on cloud-native infrastructure  
 Cloud Provider: Amazon Web Services  
 Infrastructure as Code: Terraform  
 Application Runtime: Spring Boot / Java  
@@ -12,10 +11,8 @@ Primary Region: Singapore (ap-southeast-1)
 DR Region: Tokyo (ap-northeast-1)  
 Architecture Style: Microservices, API Gateway Pattern, Multi-Region Disaster Recovery  
 
-## Project Overview  
-***
-### Introduction  
-***
+## Project Overview
+### Introduction
  - This project demonstrates the design, implementation and deployment of a cloud-native microservices platform using Spring Boot and Amazon Web Services.
  - The application is decomposed into independently deployable services, with each microservice responsible for a specific application capability. Services communicate through defined API contracts and operate within a secured AWS environment.
  - The platform uses Amazon ECS Fargate to run containerized Spring Boot applications, Application Load Balancer and CloudFront to expose application endpoints, and Amazon Aurora PostgreSQL to provide persistent data storage.
@@ -23,7 +20,6 @@ Architecture Style: Microservices, API Gateway Pattern, Multi-Region Disaster Re
  - Beyond application deployment, the platform incorporates security controls, database connection management, observability, performance testing and a multi-region Pilot Light disaster recovery strategy.
 
 ### Project Objective
-***
  - Design and implement a modular Spring Boot microservices architecture.
  - Deploy independently containerized services on AWS.
  - Establish secure communication between microservices.
@@ -37,7 +33,6 @@ Architecture Style: Microservices, API Gateway Pattern, Multi-Region Disaster Re
  - Evaluate architecture decisions through technical trade-off analysis.
 
 ### Technology Stack
-***
 The platform is built using a layered architecture, combining Spring Boot microservices, AWS managed services, Infrastructure as Code, and automated CI/CD pipelines.
 
 #### Application Layer — Backend Microservices
@@ -141,8 +136,10 @@ The platform is built using a layered architecture, combining Spring Boot micros
 
 
 ## Project Architecture
-***
+
 ![Project Architecture Diagram](images/Capstone-Architecting.jpg)
+
+
 
 
 
