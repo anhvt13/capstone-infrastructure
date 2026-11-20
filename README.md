@@ -159,7 +159,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
     - Internal ALB for traffic distribution -> introduce additional target group, health-check capabilities to maintain 
  - Advantages: Build-in services discovering and round-robin load balancing distribution without additional managed resources
  - Disadvantages: Introduces an additional managed sidecar proxy into ecs task's networking architecture
- - Consequences:
+ - Trade-off:
    - Simplified service discovery, reduced need for dedicated internal load balancers
    - Additional ECS Service Connect configuration, troubleshooting becomes more complicated
 
@@ -186,7 +186,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
 - Disadvantages:
   - External-provider dependency: Google authentication introduces dependency on Google's authentication policies
   - Increased configuration complexity: Federation requires configuring Google OAuth credentials, Cognito identity-provider settings, attribute mappings, callback URLs, and allowed OAuth scopes
-- Consequences:
+- Trade-off:
   - Amazon Cognito remains the application's centralized Authorization Server and token issuer
   - The architecture introduces additional configuration and operational complexity compared with Cognito-native authentication alone
 
@@ -212,7 +212,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
 - Disadvantages:
   - Introduces additional infrastructure cost and a network infrastructure
   - RDS Proxy must register a specific regional Aurora DB cluster as its target. Can NOT configure RDS Proxy to use the Aurora Global Database writer endpoint directly as its targets
-- Consequences:
+- Trade-off:
   - Improve database connection management and failover resilience
   - Introduces additional cost and infrastructure complexity
 
@@ -226,6 +226,49 @@ The platform is built using a layered architecture, combining Spring Boot micros
 - Disadvantages:
    - Introduces additional infrastructure costs and network communication between applications and the cache
    - Requires cache invalidation and expiration strategies to prevent stale data
-- Consequences:
+- Trade-off:
    - Repeated database queries can be reduced for workloads with high cache-hit rates
    - Cache invalidation, expiration (TTL), and consistency strategies must be implemented and maintained
+
+### Disaster Recovery (DR) Architecture
+#### Solution - Pilot Light Strategy
+- Decision made: Singapore as the primary production region and Tokyo as the disaster recovery region. Provisioned most critical core resources on DR region (VPC, subnets, Aurora Global Database). Keep other resources scaled to 0 until DR is activated
+- Advantages:
+   - Cost-effective compare to full scaled strategy (warm standby/ active-active). Reducing cost on resource hourly charges (NAT gateway, interface endpoint, RDS proxy)
+   - Well-organized infrastructure, rapidly scale up to full production capacity
+- Disadvantages:
+   - Higher RTO/RPO compare to full scaled strategy due to need of deploy and scale infrastructure
+   - Required operate a global database failover in order to promote the secondary cluster to primary (writer)
+   - Keep a single terraform source for provisioning infrastructures on multi-region require extra effort in state management in order to prevent conflicts and duplicate resources
+- Trade-off:
+   - Cost-effective, RTO ~ 6 mins
+   - Extra effort in modular architecture and state resources management on terraform
+
+### Infrastructure as Code Architecture
+- The AWS infrastructure is provisioned and managed using Terraform, enabling repeatable deployments, consistent infrastructure configuration, and version-controlled infrastructure changes
+- Modular architecture: Organizes infrastructure into reusable Terraform modules, separating application infrastructure, networking, database resources, security, and supporting services.
+- Multi-Region deployment: Uses multiple AWS provider configurations to provision and manage resources across Singapore (ap-southeast-1) and Tokyo (ap-northeast-1), supporting the Aurora Global Database and regional disaster recovery architecture.
+- Remote state management: Stores Terraform state in Amazon S3, allowing infrastructure state to be maintained centrally and accessed across deployment workflows.
+- Terraform structure
+    ````
+    aws-infrastructure/
+    ├── data.tf
+    ├── main.tf
+    ├── outputs.tf
+    ├── providers.tf
+    ├── states.tf
+    ├── variables.tf
+    ├── modules/
+    │   ├── alb/
+    │   ├── bastion/
+    │   ├── cdn/
+    │   ├── container/
+    │   ├── database/
+    │   ├── db-proxy/
+    │   ├── function/
+    │   ├── monitor/
+    │   ├── network/
+    │   ├── redis/
+    │   ├── security/
+    │   ├── share/
+    │   └── storage/
