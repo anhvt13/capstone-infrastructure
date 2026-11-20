@@ -199,7 +199,9 @@ The platform is built using a layered architecture, combining Spring Boot micros
 
 #### Google as External Identity Provider
 - Decision made: Google is adopted as an external federated Identity Provider, while Amazon Cognito remains the centralized Authorization Server and identity integration layer.
-- Alternatives considered:
+- Alternatives considered: Cognito-native authentication alone 
+  - Self-manage customer credential lifecycle operations
+  - Limited Identity Provider Flexibility: Customers are restricted to authentication methods supported directly by the Cognito User Pool
 - Advantages:
   - Simplified customer sign-in: Customers can authenticate using their existing Google account without creating and remembering another application-specific credential
   - Delegated identity verification: Google handles the authentication process, reducing the Cognito's responsibility for credential verification
