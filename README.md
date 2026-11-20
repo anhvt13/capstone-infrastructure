@@ -38,7 +38,6 @@ Architecture Style: Microservices, API Gateway Pattern, Multi-Region Disaster Re
  - Delete Driver - Remove driver record
  - Update Driver  - Modify driver record
 
-
 ### Technology Stack
 The platform is built using a layered architecture, combining Spring Boot microservices, AWS managed services, Infrastructure as Code, and automated CI/CD pipelines.
 
@@ -153,7 +152,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
    - Authenticate and authorize service-to-service communication
    - Maintain controlled database connection pooling
 
-#### Microservices Communication
+#### Solution - ECS Service Connect for microservices communication
  - Decision made: BFF service communicates with Driver service through native ECS Service Connect connectivity
  - Alternatives considered: 
     - AWS Cloud Map for service discovery: DNS resolves the service name to task IPs -> DNS resolution could leads to stale addresses, does not support the traffic-distribution
@@ -175,7 +174,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
  
 ![Application-Layer Authentication architecture](images/Capstone-Authentication.jpg)
 
-##### Google as External Identity Provider
+##### Solution - Google as External Identity Provider
 - Decision made: Google is adopted as an external federated Identity Provider, while Amazon Cognito remains the centralized Authorization Server and identity integration layer.
 - Alternatives considered: Cognito-native authentication alone 
   - Self-manage customer credential lifecycle operations
@@ -198,7 +197,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
    - Combines transport-level authentication with OAuth 2.0 application-level authorization to strengthen service-to-service security through defense in depth
 
  ![Authentication Architecture Diagram](images/Capstone-mTLS.jpg)
- - Rooms for improvement: Strengthen communication between CloudFront and the Application Load Balancer (ALB) with mTLS
+ - Solution for improvement: Strengthen communication between CloudFront and the Application Load Balancer (ALB) with mTLS
  - Outcome: Establish End-to-End Transport Security 
 
 
