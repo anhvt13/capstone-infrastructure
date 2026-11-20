@@ -158,8 +158,8 @@ The platform is built using a layered architecture, combining Spring Boot micros
  - Alternatives considered: 
     - AWS Cloud Map for service discovery: DNS resolves the service name to task IPs -> DNS resolution could leads to stale addresses, does not support the traffic-distribution
     - Internal ALB for traffic distribution -> introduce additional target group, health-check capabilities to maintain 
- - Advantages: build-in services discovering and round-robin load balancing distribution without additional managed resources
- - Disadvantages: introduces an additional managed sidecar proxy into ecs task's networking architecture
+ - Advantages: Build-in services discovering and round-robin load balancing distribution without additional managed resources
+ - Disadvantages: Introduces an additional managed sidecar proxy into ecs task's networking architecture
  - Consequences:
    - Simplified internal service discovery, reduced need for dedicated internal load balancers
    - Additional ECS Service Connect configuration, troubleshooting becomes more complicated
@@ -168,14 +168,14 @@ The platform is built using a layered architecture, combining Spring Boot micros
  - The project implements a centralized, token-based authentication architecture using OAuth 2.0, OpenID Connect (OIDC), Amazon Cognito, and Spring Security.
  - Amazon Cognito acts as the centralized Identity Provider and Authorization Server, responsible for authenticating users and issuing access tokens and ID tokens. Spring Security integrates with Cognito to secure Spring Boot applications
 
-#### Authentication Microservices
+#### Application-Layer Authorization
  - The architecture adopts two OAuth 2.0 grant types to address different authentication requirements:
  - Authorization Code Grant: The BFF acts as an OAuth2 server, while Amazon Cognito as authorization server handles customer authentication and token issuance.
  - Client Credentials Grant: Does not involve an interactive login or an individual user. The BFF authenticates itself as a confidential OAuth2 client using its dedicated client ID and client secret against Driver-service as OAuth2 server. Amazon Cognito issues an access token representing the BFF application, establish machine-to-machine authentication.
+ 
+![Application-Layer Authentication architecture](images/Capstone-Authentication.jpg)
 
- ![Authentication Architecture Diagram](images/Capstone-Authentication.jpg)
-
-#### Google as External Identity Provider
+##### Google as External Identity Provider
 - Decision made: Google is adopted as an external federated Identity Provider, while Amazon Cognito remains the centralized Authorization Server and identity integration layer.
 - Alternatives considered: Cognito-native authentication alone 
   - Self-manage customer credential lifecycle operations
@@ -191,6 +191,15 @@ The platform is built using a layered architecture, combining Spring Boot micros
   - Amazon Cognito remains the application's centralized Authorization Server and token issuer
   - The architecture introduces additional configuration and operational complexity compared with Cognito-native authentication alone
 
+#### Transport-Layer Authentication
+ - Mutual Transport Layer Security (mTLS) is implemented to secure internal communication between backend microservices. mTLS requires both the client and server to authenticate each other using trusted certificates issued by a trusted authority can establish a connection.
+ - Benefits:
+   - Encrypted Communication: Protects data exchanged between microservices against interception
+   - Combines transport-level authentication with OAuth 2.0 application-level authorization to strengthen service-to-service security through defense in depth
+
+ ![Authentication Architecture Diagram](images/Capstone-mTLS.jpg)
+ - Rooms for improvement: Strengthen communication between CloudFront and the Application Load Balancer (ALB) with mTLS
+ - Outcome: Establish End-to-End Transport Security 
 
 
 
