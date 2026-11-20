@@ -43,98 +43,76 @@ Architecture Style: Microservices, API Gateway Pattern, Multi-Region Disaster Re
 The platform is built using a layered architecture, combining Spring Boot microservices, AWS managed services, Infrastructure as Code, and automated CI/CD pipelines.
 
 #### Application Layer — Backend Microservices
-| Technology         | Purpose                                                                         |
-|--------------------|---------------------------------------------------------------------------------|
-| Java               | Primary programming language for backend application development                |
-| Spring Boot        | Framework for building independently deployable microservices and REST APIs     |
-| Spring Web         | RESTful API development and HTTP request handling                               |
-| Spring Security    | Authentication, authorization, and security configuration                       |
-| Spring Data / JDBC | Database access and persistence                                                 |
-| Hibernate / JPA    | Object-relational mapping                                                       |
-| Maven              | Dependency management, application compilation, and build automation            |
-| JUnit              | Unit and integration testing                                                    |
+| Technology        | Purpose                                                              |
+|-------------------|----------------------------------------------------------------------|
+| Java/ Spring Boot | Core backend development and independently deployable microservices  |
+| Spring Web        | RESTful API development and HTTP request handling                    |
+| Spring Security   | Authentication, authorization, and security configuration            |
+| Spring Data/ JPA  | Database access, persistence, and object-relational mapping          |
+| Maven             | Dependency management, application compilation, and build automation |
+| JUnit             | Unit and integration testing                                         |
 
-#### Application Communication
-| Technology                 | Purpose                                                                         |
-|----------------------------|---------------------------------------------------------------------------------|
-| REST API                   | Communication between frontend clients, BFF, and backend services               |
-| Backend-for-Frontend (BFF) | Aggregates backend APIs and provides a dedicated interface for client consuming |
-| Amazon ECS Service Connect | Service discovery and internal communication between ECS microservices          |
-| Mutual TLS (mTLS)          | Secured service-to-service communication and client certificate authentication  |
-| HTTP / HTTPs               | Object-relational mapping                                                       |
+#### API Communication & Identity Security
+| Technology                           | Purpose                                                                        |
+|--------------------------------------|--------------------------------------------------------------------------------|
+| REST API/ Backend-for-Frontend (BFF) | Client-facing API layer and communication between backend services             |
+| Amazon ECS Service Connect           | Service discovery and internal communication between ECS microservices         |
+| Mutual TLS (mTLS)                    | Secured service-to-service communication and client certificate authentication |
+| Spring Security                      | Application-level authentication and authorization framework                   |
+| Amazon Cognito                       | Identity management, user authentication, and token issuance                   |
+| JSON Web Token (JWT)                 | Carries signed authentication and authorization claims                         |
+| Lambda@Edge                          | Performs JWT validation at the CloudFront edge                                 |
+| AWS Secrets Manager                  | Secure storage and retrieval of credentials and sensitive configuration        |
+| AWS IAM/IAM Roles                    | Fine-grained access control for AWS resources and application workloads        |
 
+#### Data Management & Persistence
+| Technology                  | Purpose                                                                                               |
+|-----------------------------|-------------------------------------------------------------------------------------------------------|
+| Amazon Aurora PostgreSQL    | Relational database supporting transactional application workloads                                    |
+| Aurora Global Database      | Cross-region database replication supporting disaster recovery                                        |
+| Amazon RDS Proxy            | Database connection pooling, connection management, and improved application-to-database connectivity |
+| HikariCP                    | Application-level JDBC connection pooling                                                             |
+| Amazon ElastiCache (Valkey) | Distributed in-memory data stored and reduce database load                                            |
 
-#### Identity and Security
-| Technology           | Purpose                                                                    |
-|----------------------|----------------------------------------------------------------------------|
-| Spring Security      | Application-level authentication and authorization framework               |
-| Amazon Cognito       | Identity management, user authentication, and token issuance               |
-| JSON Web Token (JWT) | Carries signed authentication and authorization claims                     |
-| Lambda@Edge          | Performs JWT validation at the CloudFront edge                             |
-| AWS Secrets Manager  | Secure storage and retrieval of credentials and sensitive configuration    |
-| AWS IAM              | Fine-grained access control for AWS resources and application workloads    |
-| IAM Roles            | Grant AWS permissions to application containers without static credentials |
+#### Containerization & Compute
+| Technology              | Purpose                                                                                             |
+|-------------------------|-----------------------------------------------------------------------------------------------------|
+| Docker                  | Containerization of Spring Boot microservices                                                       |
+| Amazon ECR              | Private container image registry                                                                    |
+| Amazon ECS/ AWS Fargate | Container orchestration and Serverless container compute                                            |
+| ECS Task Definitions    | Define application containers, resources, environment variables, secrets, and runtime configuration |
+| EC2                     | Bastion host as single secure entry point connect to private resources (Aurora, Valkey)             |
+| AWS Lambda              | Executes logic as serverless modelization                                                           |
 
-#### Data Layer
-| Technology               | Purpose                                                                                               |
-|--------------------------|-------------------------------------------------------------------------------------------------------|
-| Amazon Aurora PostgreSQL | Relational database supporting transactional application workloads                                    |
-| Aurora Global Database   | Cross-region database replication supporting disaster recovery                                        |
-| Amazon RDS Proxy         | Database connection pooling, connection management, and improved application-to-database connectivity |
-| HikariCP                 | Application-level JDBC connection pooling                                                             |
-| Amazon ElastiCache       | Distributed in-memory data stored and reduce database load                                            |
+#### Networking & Content Delivery
+| Technology                             | Purpose                                                                       |
+|----------------------------------------|-------------------------------------------------------------------------------|
+| Amazon VPC                             | Isolated networking environment for AWS workloads                             |
+| Subnets, Internet Gateway, Route Table | Network segmentation and traffic routing                                      |
+| NAT Gateway/ VPC Endpoints             | Outbound internet access and private connectivity to AWS services             |
+| Security Groups / NACLs                | Stateful and stateless network access control                                 |
+| Application Load Balancer (ALB)        | HTTP routing and traffic distribution to application services                 |
+| Amazon CloudFront                      | Global content delivery, HTTPS entry point, edge routing, and reduced latency |
 
-#### Containerization and Compute Layer
-| Technology           | Purpose                                                                                             |
-|----------------------|-----------------------------------------------------------------------------------------------------|
-| Docker               | Containerization of Spring Boot microservices                                                       |
-| Amazon ECR           | Private container image registry                                                                    |
-| Amazon ECS           | Container orchestration and service management                                                      |
-| AWS Fargate          | Serverless container compute for running microservices without managing                             |
-| ECS Task Definitions | Define application containers, resources, environment variables, secrets, and runtime configuration |
-| EC2                  | Bastion host as single secure entry point connect to private resources (Aurora, Valkey)             |
-| AWS Lambda           | Executes logic as serverless modelization                                                           |
-
- 
-#### Networking and CDN Layer
-| Technology                         | Purpose                                                                       |
-|------------------------------------|-------------------------------------------------------------------------------|
-| Amazon VPC                         | Isolated networking environment for AWS workloads                             |
-| Public and Private Subnets         | Network segmentation for internet-facing and internal resources               |
-| Internet Gateway                   | Internet connectivity for public-facing infrastructure                        |
-| NAT Gateway                        | Outbound internet connectivity for private subnet workloads                   |
-| VPC Endpoints                      | Secured internal connect from VPC to AWS services                             |
-| Network Access Control List (NACL) | Stateless network access control                                              |
-| Security Groups                    | Stateful network access control                                               |
-| Route Tables                       | Control network traffic routing between subnets and network destinations      |
-| Application Load Balancer (ALB)    | HTTP routing and traffic distribution to application services                 |
-| Amazon CloudFront                  | Global content delivery, HTTPS entry point, edge routing, and reduced latency |
-
-#### Infrastructure as Code
-| Technology         | Purpose                                                               |
-|--------------------|-----------------------------------------------------------------------|
-| Terraform          | Infrastructure provisioning, configuration, and lifecycle management  |
-| Terraform Modules  | Reusable and modular infrastructure components                        |
-| Terraform State    | Tracks deployed infrastructure and resource relationships             |
-
-#### CI/CD and Automation
+#### Infrastructure Automation & CI/CD
 | Technology                | Purpose                                                                  |
 |---------------------------|--------------------------------------------------------------------------|
+| Terraform                 | Infrastructure provisioning, configuration, and lifecycle management     |
+| Terraform Modules         | Reusable and modular infrastructure components                           |
+| Terraform State           | Tracks deployed infrastructure and resource relationships                |
 | GitHub                    | Source code management and collaboration                                 |
 | GitHub Actions            | Automated CI/CD workflows                                                |
 | GitHub Actions OIDC       | Secure federated authentication between GitHub and AWS                   |
 | ECS Deployment Management | Automates how containerized applications are rolled out, updated, scaled |
 
-#### Observability and Monitoring
-| Technology            | Purpose                                                                                    |
-|-----------------------|--------------------------------------------------------------------------------------------|
-| CloudWatch Logs       | Application, container, and infrastructure logs                                            |
-| CloudWatch Metrics    | Monitoring application and infrastructure performance                                      |
-| CloudWatch Alarms     | Detect abnormal infrastructure and application conditions                                  |
-| CloudWatch Synthetics | End-to-end availability monitoring through synthetic requests                              |
-| Amazon EventBridge    | Event-driven integration between monitoring, incident detection, and automation components |
+#### Observability & Monitoring
+| Technology                                | Purpose                                                                                    |
+|-------------------------------------------|--------------------------------------------------------------------------------------------|
+| Amazon CloudWatch Logs, Metrics & Alarms  | Centralized logging, performance monitoring, and operational alerting                      |
+| CloudWatch Synthetics                     | End-to-end availability monitoring through synthetic requests                              |
+| Amazon EventBridge                        | Event-driven integration between monitoring, incident detection, and automation components |
 
-#### Disaster Recovery and Resilience
+#### Disaster Recovery & Resilience
 | Technology             | Purpose                                                                                    |
 |------------------------|--------------------------------------------------------------------------------------------|
 | Aurora Global Database | Cross-region database replication                                                          |
