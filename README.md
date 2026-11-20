@@ -160,7 +160,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
  - Advantages: Build-in services discovering and round-robin load balancing distribution without additional managed resources
  - Disadvantages: Introduces an additional managed sidecar proxy into ecs task's networking architecture
  - Consequences:
-   - Simplified internal service discovery, reduced need for dedicated internal load balancers
+   - Simplified service discovery, reduced need for dedicated internal load balancers
    - Additional ECS Service Connect configuration, troubleshooting becomes more complicated
 
 ### Authentication Architecture
@@ -201,4 +201,31 @@ The platform is built using a layered architecture, combining Spring Boot micros
  - Outcome: Establish End-to-End Transport Security 
 
 
+### Database Architecture
+#### Solution - Leverage Amazon RDS Proxy
+- Decision made: Use Amazon RDS Proxy as the database connection layer between ECS Fargate microservices and Aurora PostgreSQL Serverless
+- Alternative considered: Direct Aurora Connection
+  - Frequent ECS task scaling can cause repeated database connection establishment and termination, increasing connection-management overhead on Aurora.
+- Advantages:
+  - Connection Pooling: Reuses established database connections to reduce connection overhead
+  - Failover Resilience: RDS Proxy can queue incoming requests while the writer is unavailable, then send them to the new writer once it is available, it also doesn't have to rely on the application's DNS resolution and caching behavior to find the new writer
+- Disadvantages:
+  - Introduces additional infrastructure cost and a network infrastructure
+  - RDS Proxy must register a specific regional Aurora DB cluster as its target. Can NOT configure RDS Proxy to use the Aurora Global Database writer endpoint directly as its targets
+- Consequences:
+  - Improve database connection management and failover resilience
+  - Introduces additional cost and infrastructure complexity
 
+#### Solution - Leverage Amazon ElastiCache for Valkey
+- Decision made: ElastiCache for Valkey as a distributed caching layer for selected frequently accessed data
+- Alternative considered: Retrieve data directly from Aurora PostgreSQL without an additional caching layer
+   - Database capacity may become a bottleneck as application traffic peaks
+- Advantages:
+   - Low-Latency Data Access: Retrieves frequently accessed data from in-memory storage instead of repeatedly querying Aurora
+   - Horizontal Scalability: Provides a shared distributed caching across horizontally ECS services scale. Reduces per-instance cache duplication
+- Disadvantages:
+   - Introduces additional infrastructure costs and network communication between applications and the cache
+   - Requires cache invalidation and expiration strategies to prevent stale data
+- Consequences:
+   - Repeated database queries can be reduced for workloads with high cache-hit rates
+   - Cache invalidation, expiration (TTL), and consistency strategies must be implemented and maintained
