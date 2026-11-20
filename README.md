@@ -182,18 +182,34 @@ The platform is built using a layered architecture, combining Spring Boot micros
     - Internal ALB for traffic distribution -> introduce additional target group, health-check capabilities to maintain 
  - Advantages: build-in services discovering and round-robin load balancing distribution without additional managed resources
  - Disadvantages: introduces an additional managed sidecar proxy into ecs task's networking architecture
- - Consequences: troubleshooting becomes more complicated
+ - Consequences:
+   - Simplified internal service discovery, reduced need for dedicated internal load balancers
+   - Additional ECS Service Connect configuration, troubleshooting becomes more complicated
 
 ### Authentication Architecture
  - The project implements a centralized, token-based authentication architecture using OAuth 2.0, OpenID Connect (OIDC), Amazon Cognito, and Spring Security.
  - Amazon Cognito acts as the centralized Identity Provider and Authorization Server, responsible for authenticating users and issuing access tokens and ID tokens. Spring Security integrates with Cognito to secure Spring Boot applications
- - 
+
 #### Authentication Microservices
  - The architecture adopts two OAuth 2.0 grant types to address different authentication requirements:
- - Authorization Code Grant with JWT: Used for customer authentication when accessing the internet-facing application through the Backend-for-Frontend (BFF).
- - Client Credentials Grant: Used for machine-to-machine authentication when the BFF communicates with internal microservices, such as the Driver service.
- - 
+ - Authorization Code Grant: The BFF acts as an OAuth2 server, while Amazon Cognito as authorization server handles customer authentication and token issuance.
+ - Client Credentials Grant: Does not involve an interactive login or an individual user. The BFF authenticates itself as a confidential OAuth2 client using its dedicated client ID and client secret against Driver-service as OAuth2 server. Amazon Cognito issues an access token representing the BFF application, establish machine-to-machine authentication.
+
  ![Authentication Architecture Diagram](images/Capstone-Authentication.jpg)
+
+#### Google as External Identity Provider
+- Decision made: Google is adopted as an external federated Identity Provider, while Amazon Cognito remains the centralized Authorization Server and identity integration layer.
+- Alternatives considered:
+- Advantages:
+  - Simplified customer sign-in: Customers can authenticate using their existing Google account without creating and remembering another application-specific credential
+  - Delegated identity verification: Google handles the authentication process, reducing the Cognito's responsibility for credential verification
+  - Identity-provider flexibility: Another external identity providers can be integrated through Cognito without requiring major changes authentication architecture
+- Disadvantages:
+  - External-provider dependency: Google authentication introduces dependency on Google's authentication policies
+  - Increased configuration complexity: Federation requires configuring Google OAuth credentials, Cognito identity-provider settings, attribute mappings, callback URLs, and allowed OAuth scopes
+- Consequences:
+  - Amazon Cognito remains the application's centralized Authorization Server and token issuer
+  - The architecture introduces additional configuration and operational complexity compared with Cognito-native authentication alone
 
 
 
