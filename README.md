@@ -174,7 +174,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
  
 ![Application-Layer Authentication architecture](images/Capstone-Authentication.jpg)
 
-##### Solution - Google as External Identity Provider
+#### Solution - Google as External Identity Provider
 - Decision made: Google is adopted as an external federated Identity Provider, while Amazon Cognito remains the centralized Authorization Server and identity integration layer.
 - Alternatives considered: Cognito-native authentication alone 
   - Self-manage customer credential lifecycle operations
