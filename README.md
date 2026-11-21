@@ -125,6 +125,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
 ![Project Architecture Diagram](images/Capstone-Architecting.jpg)
 
 ### Microservices Architecture
+***
  - The application follows a microservices architecture in which application capabilities are separated into independently deployable Spring Boot services.
  - Instead of exposing every backend service directly to external clients, the platform uses a Backend-for-Frontend (BFF) service as the primary application entry point.
  - The BFF coordinates incoming client requests and communicates with internal services through private service-to-service connectivity.
@@ -164,6 +165,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
    - Additional ECS Service Connect configuration, troubleshooting becomes more complicated
 
 ### Authentication Architecture
+***
  - The project implements a centralized, token-based authentication architecture using OAuth 2.0, OpenID Connect (OIDC), Amazon Cognito, and Spring Security.
  - Amazon Cognito acts as the centralized Identity Provider and Authorization Server, responsible for authenticating users and issuing access tokens and ID tokens. Spring Security integrates with Cognito to secure Spring Boot applications
 
@@ -191,17 +193,27 @@ The platform is built using a layered architecture, combining Spring Boot micros
   - The architecture introduces additional configuration and operational complexity compared with Cognito-native authentication alone
 
 #### Transport-Layer Authentication
- - Mutual Transport Layer Security (mTLS) is implemented to secure internal communication between backend microservices. mTLS requires both the client and server to authenticate each other using trusted certificates issued by a trusted authority can establish a connection.
- - Benefits:
-   - Encrypted Communication: Protects data exchanged between microservices against interception
-   - Combines transport-level authentication with OAuth 2.0 application-level authorization to strengthen service-to-service security through defense in depth
 
  ![Authentication Architecture Diagram](images/Capstone-mTLS.jpg)
- - Solution for improvement: Strengthen communication between CloudFront and the Application Load Balancer (ALB) with mTLS
- - Outcome: Establish End-to-End Transport Security 
 
+#### Solution - Mutual Transport Layer Security (mTLS)
+- Decision made: Mutual Transport Layer Security (mTLS) is implemented to secure internal communication between backend microservices. mTLS requires both the client and server to authenticate each other using trusted certificates issued by a trusted authority can establish a connection
+- Alternative considered: Plain HTTP - lack of transport encryption, mutual authentication. Increased risk of man-in-the-middle attacks
+- Advantages:
+  - Encrypted communication: Protects service-to-service traffic against interception and unauthorized disclosure while in transit.
+  - Defense in Depth: Adds transport-level authentication to network security controls and OAuth 2.0 application-level authorization, providing multiple independent security layers
+- Disadvantages:
+  - Certificate Management Complexity: Requires certificate issuance, distribution, trust-store configuration, expiration monitoring, and renewal
+  - Application Configuration Complexity: Requires TLS configuration within application runtimes, including keystore and truststore management, client certificate presentation, and server-side certificate validation
+  - Troubleshooting Complexity: TLS handshake failures, configuration mismatches can introduce additional debugging effort
+- Trade-off:
+  - Stronger service-to-service authentication, encrypted transport, and defense-in-depth security layers
+  - mTLS introduces additional certificate lifecycle management and application configuration complexity
+- Room for improvement: Strengthen communication between CloudFront and the Application Load Balancer (ALB) with mTLS
+- Outcome: Establish End-to-End Transport Security 
 
 ### Database Architecture
+***
 #### Solution - Leverage Amazon RDS Proxy
 - Decision made: Use Amazon RDS Proxy as the database connection layer between ECS Fargate microservices and Aurora PostgreSQL Serverless
 - Alternative considered: Direct Aurora Connection
@@ -231,6 +243,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
    - Cache invalidation, expiration (TTL), and consistency strategies must be implemented and maintained
 
 ### Disaster Recovery (DR) Architecture
+***
 #### Solution - Pilot Light Strategy
 - Decision made: Singapore as the primary production region and Tokyo as the disaster recovery region. Provisioned most critical core resources on DR region (VPC, subnets, Aurora Global Database). Keep other resources scaled to 0 until DR is activated
 - Advantages:
@@ -245,6 +258,7 @@ The platform is built using a layered architecture, combining Spring Boot micros
    - Extra effort in modular architecture and state resources management on terraform
 
 ### Infrastructure as Code
+***
 #### Terraform Infrastructure
 - The AWS infrastructure is provisioned and managed using Terraform, enabling repeatable deployments, consistent infrastructure configuration, and version-controlled infrastructure changes
 - Organized into three main Terraform projects
