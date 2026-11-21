@@ -244,31 +244,19 @@ The platform is built using a layered architecture, combining Spring Boot micros
    - Cost-effective, RTO ~ 6 mins
    - Extra effort in modular architecture and state resources management on terraform
 
-### Infrastructure as Code Architecture
+### Infrastructure as Code
+#### Terraform Infrastructure
 - The AWS infrastructure is provisioned and managed using Terraform, enabling repeatable deployments, consistent infrastructure configuration, and version-controlled infrastructure changes
-- Modular architecture: Organizes infrastructure into reusable Terraform modules, separating application infrastructure, networking, database resources, security, and supporting services.
-- Multi-Region deployment: Uses multiple AWS provider configurations to provision and manage resources across Singapore (ap-southeast-1) and Tokyo (ap-northeast-1), supporting the Aurora Global Database and regional disaster recovery architecture.
-- Remote state management: Stores Terraform state in Amazon S3, allowing infrastructure state to be maintained centrally and accessed across deployment workflows.
-- Terraform structure
-    ````
-    aws-infrastructure/
-    ├── data.tf
-    ├── main.tf
-    ├── outputs.tf
-    ├── providers.tf
-    ├── states.tf
-    ├── variables.tf
-    ├── modules/
-    │   ├── alb/
-    │   ├── bastion/
-    │   ├── cdn/
-    │   ├── container/
-    │   ├── database/
-    │   ├── db-proxy/
-    │   ├── function/
-    │   ├── monitor/
-    │   ├── network/
-    │   ├── redis/
-    │   ├── security/
-    │   ├── share/
-    │   └── storage/
+- Organized into three main Terraform projects
+
+| Module                 | Resources                                                                                                                                                                                                          |
+|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| aws-infrastructure     | Main cloud-native infrastructure responsible for provisioning and managing application platform resources, network, compute services, databases, load balancing, security, monitoring, and supporting AWS services |
+| legacy-network         | Foundational network infrastructure that provisions the required networking resources for both the primary and DR regions - including VPCs, db-subnets, security groups                                            |
+| secrets-infrastructure | Responsible for managing AWS Secrets Manager resources used to securely store and manage sensitive application and infrastructure data, including TLS certificates, database credentials                           |
+
+#### Infrastructure Design Principles:
+ - Modular architecture: Organizes infrastructure into reusable Terraform modules, separating application infrastructure, networking, database resources, security, and supporting services.
+ - Multi-Region deployment: Uses multiple AWS provider configurations to provision and manage resources across Singapore (ap-southeast-1) and Tokyo (ap-northeast-1), supporting the Aurora Global Database and regional disaster recovery architecture.
+ - Remote state management: Stores Terraform state in Amazon S3, allowing infrastructure state to be maintained centrally and accessed across deployment workflows.
+    
