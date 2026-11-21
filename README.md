@@ -276,3 +276,17 @@ The platform is built using a layered architecture, combining Spring Boot micros
  - Security: Manage sensitive information through AWS Secrets Manager rather than hardcoding credentials or certificates into infrastructure configuration
  - Automation: Integrate Terraform operations with GitHub Actions to reduce manual deployment steps
     
+## Project Onboarding
+1. (Prerequisite) Execute terraform apply locally: [IAM-bootstrap-role](https://github.com/anhvt13/github-bootstrap-role/blob/main/github-actions-bootstrap-role.tf ) before trigger any Github workflows in order to provision a bootstrap-role with trusted repositories consumer
+2. From AWS console, provision manually bucket named "capstone-terraform-state-249899229305-ap-southeast-1-an" as backend terraform state of whole capstone infrastructure
+3. Trigger [infras-deployment-role](https://github.com/anhvt13/github-actions-infrastructure/actions/workflows/initial-infra-deployment-role.yml) workflow for provisioning the IAM assume infrastructure deployment role
+4. Trigger [ecs-deployment-role](https://github.com/anhvt13/github-actions-infrastructure/actions/workflows/initial-ecs-deployment-role.yml) workflow for provisioning the IAM assume ECS deployment role
+5. Trigger [legacy-network-infrastructure](https://github.com/anhvt13/capstone-infrastructure/actions/workflows/legacy-network-deployment.yml) workflow for provisioning the legacy network infrastructure - which build up vpc, subnets, database security group resources on both Primary site and DR site
+6. Trigger [secret-infrastructure](https://github.com/anhvt13/capstone-infrastructure/actions/workflows/secrets-module-deployment.yml) workflow for provisioning secret manager resources - place to keep all mTLS certificates, aurora database credentials
+7. Trigger [secret-bootstrap](https://github.com/anhvt13/capstone-infrastructure/actions/workflows/bootstrap-secrets.yml) workflow for pushing all secret values from github repository to secret manager
+8. If this is your first time on deployment  
+   8.1 From AWS console, provsion manually two ECR repositories: capstone/bff-client, capstone/driver-service  
+   8.2 Trigger [BFF-service-deployment](https://github.com/anhvt13/capstone-bff-client/actions/workflows/ecs-bff-service-deployment.yml) workflow to publish latest docker image into "capstone/bff-client" ECR repository  
+   8.3 Trigger [Driver-service-deployment](https://github.com/anhvt13/capstone-driver-service/actions/workflows/ecs-driver-service-deployment.yml) workflow to publish latest docker image into "capstone/driver-service" ECR repository  
+   8.4 Update these [bff-image-uri](https://github.com/anhvt13/capstone-infrastructure/blob/main/aws-infrastructure/variables.tf#L129), [driver-image-uri](https://github.com/anhvt13/capstone-infrastructure/blob/main/aws-infrastructure/variables.tf#L123) as ECS task definition input parameters
+9. Trigger [infrastructure-deployment](https://github.com/anhvt13/capstone-infrastructure/actions/workflows/infrastructure-deployment.yml) workflow for provision Capstone Application's infrastructure on ap-southeast-1 as Primary site and ap-northeast-1 as DR site
