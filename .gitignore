@@ -25,3 +25,4 @@ aws-infrastructure/.terraform/
 node_modules/
 *.zip
 
+legacy-network/.terraform/providers/registry.terraform.io/hashicorp/aws/6.71.0/darwin_arm64/terraform-provider-aws_v6.71.0_x5
